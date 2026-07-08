@@ -9,7 +9,9 @@ Rode quantas vezes precisar. **Cada execução é destrutiva por design:** ela *
 - PowerShell: `pwsh scripts/publish-issues.ps1`
 - Bash: `bash scripts/publish-issues.sh`
 
-Cada arquivo `NN-*.md`: a **primeira linha `# Título`** vira o título do issue; o resto vira o corpo. Todos recebem o label `needs-triage`.
+Cada arquivo `NN-*.md`: a **primeira linha `# Título`** vira o título do issue; o resto vira o corpo. Todos recebem o label `ready-for-agent`.
+
+Nos arquivos locais, "Blocked by" referencia a fatia por `Slice NN` (estável entre uploads). Na publicação, **o script resolve cada `Slice NN` para o número real `#N`** do issue recém-criado — como as dependências apontam sempre para trás e publicamos em ordem, isso vira um link clicável no GitHub a cada rodada.
 
 ## Convenções globais (valem para TODOS os issues — não repetidas em cada um)
 
