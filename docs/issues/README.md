@@ -4,7 +4,7 @@ Este diretório é a **fonte da verdade** dos issues. Eles são criados aqui loc
 
 ## Publicar no GitHub
 
-Rode quantas vezes precisar — cada execução cria uma leva nova de issues:
+Rode quantas vezes precisar. **Cada execução é destrutiva por design:** ela **apaga permanentemente todos os issues do repo (abertos e fechados)** e recria a leva a partir destes arquivos — para resetar o board a cada rodada de avaliação.
 
 - PowerShell: `pwsh scripts/publish-issues.ps1`
 - Bash: `bash scripts/publish-issues.sh`
