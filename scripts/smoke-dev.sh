@@ -6,11 +6,20 @@ URL="http://127.0.0.1:${PORT}"
 LOG="$(mktemp)"
 PID=""
 
+kill_port_listeners() {
+  local pids
+  pids=$(netstat -ano | grep ":${PORT}" | grep LISTENING | awk '{print $5}' | sort -u || true)
+  for p in $pids; do
+    taskkill //F //PID "$p" >/dev/null 2>&1 || true
+  done
+}
+
 cleanup() {
   if [[ -n "$PID" ]]; then
     kill "$PID" 2>/dev/null || true
     wait "$PID" 2>/dev/null || true
   fi
+  kill_port_listeners
   rm -f "$LOG"
 }
 trap cleanup EXIT
