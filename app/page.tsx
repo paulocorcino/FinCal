@@ -8,7 +8,9 @@ export default async function Home() {
     const row = await prisma.healthCheck.findFirst();
     value = row?.value ?? "No health check row found";
   } catch (e) {
-    value = `DB error: ${e instanceof Error ? e.message : String(e)}`;
+    // Log server-side; never expose raw DB errors in the UI.
+    console.error("HealthCheck query failed:", e);
+    value = "Database unavailable";
   }
 
   return (
