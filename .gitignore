@@ -1,2 +1,8 @@
 # Ralphy run artifacts (scratch, logs, per-run plans)
 .ralphy/
+.agents/
+
+# Env / secrets (NUNCA commitar tokens)
+.env
+.env.local
+.env.*.local
