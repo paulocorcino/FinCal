@@ -21,6 +21,7 @@ export default async function DashboardPage() {
       <LogoutButton />
       <nav>
         <Link href="/dashboard/contas">Contas</Link>
+        <Link href="/dashboard/categorias">Categorias</Link>
       </nav>
       <h2>Categorias</h2>
       <ul>
