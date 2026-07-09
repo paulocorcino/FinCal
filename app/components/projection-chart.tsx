@@ -46,7 +46,7 @@ export default function ProjectionChart({
             tick={{ fontSize: 12 }}
           />
           <Tooltip
-            formatter={(value: number) => [formatCurrency(value), "Saldo"]}
+            formatter={(value) => formatCurrency(Number(value))}
             labelFormatter={(label) => String(label)}
           />
           <Line
