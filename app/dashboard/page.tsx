@@ -45,6 +45,7 @@ export default async function DashboardPage() {
         <Link href="/dashboard/lancamentos">Lançamentos</Link>
         <Link href="/dashboard/saldo">Saldo</Link>
         <Link href="/dashboard/agenda">Agenda</Link>
+        <Link href="/dashboard/recorrencias">Recorrências</Link>
       </nav>
 
       <section data-testid="saldo-cards">

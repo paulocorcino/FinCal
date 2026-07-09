@@ -1,5 +1,6 @@
 import { getContasByUser } from "@/lib/contas";
 import { getLancamentosByUser, parseDataLancamento } from "@/lib/lancamentos";
+import { materializarRecorrencias } from "@/lib/recorrencias";
 import {
   addDaysSP,
   calcularSerieProjetada,
@@ -34,6 +35,11 @@ export async function getSaldoForUser(
       : maxAteStr
     : fimDoMesSP(hoje);
   const ate = parseDataLancamento(ateStr);
+
+  await materializarRecorrencias(userId, {
+    end: ateStr,
+    contaId: filters.contaId,
+  });
 
   const lancamentos = await getLancamentosByUser(userId, {
     contaId: filters.contaId,

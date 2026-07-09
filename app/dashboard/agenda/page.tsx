@@ -6,6 +6,7 @@ import { getContasByUser } from "@/lib/contas";
 import { getCategoriesByUser } from "@/lib/categories";
 import { getLancamentosByUserAction } from "@/app/actions/lancamento";
 import { createLancamentoAction } from "@/app/actions/lancamento";
+import { materializarRecorrenciasAction } from "@/app/actions/recorrencia";
 import { LancamentoForm } from "@/app/components/lancamento-form";
 import {
   addMonthsSP,
@@ -58,6 +59,11 @@ export default async function AgendaPage({
 
   const mes = searchParams.mes ?? mesAtualSP();
   const diaSelecionado = searchParams.dia;
+
+  await materializarRecorrenciasAction({
+    start: primeiroDiaDoMesSP(mes),
+    end: ultimoDiaDoMesSP(mes),
+  });
 
   const [contas, categorias, lancamentos] = await Promise.all([
     getContasByUser(session.user.id),

@@ -9,6 +9,11 @@ import {
   efetivarLancamentoAction,
   getLancamentosByUserAction,
 } from "@/app/actions/lancamento";
+import {
+  editarOcorrenciaAction,
+  excluirOcorrenciaAction,
+  materializarRecorrenciasAction,
+} from "@/app/actions/recorrencia";
 import { StatusLancamento } from "@prisma/client";
 import { isAtrasado } from "@/lib/lancamentos";
 import {
@@ -37,6 +42,13 @@ export default async function LancamentosPage({
   const session = await auth();
   if (!session?.user?.id) {
     redirect("/login");
+  }
+
+  const start = searchParams.start;
+  const end = searchParams.end;
+
+  if (start && end) {
+    await materializarRecorrenciasAction({ start, end });
   }
 
   const [contas, categorias, lancamentos] = await Promise.all([
@@ -71,6 +83,18 @@ export default async function LancamentosPage({
     "use server";
     const id = formData.get("id") as string;
     await efetivarLancamentoAction(id, formData);
+  }
+
+  async function handleEditarOcorrencia(formData: FormData) {
+    "use server";
+    const id = formData.get("id") as string;
+    await editarOcorrenciaAction(id, formData);
+  }
+
+  async function handleExcluirOcorrencia(formData: FormData) {
+    "use server";
+    const id = formData.get("id") as string;
+    await excluirOcorrenciaAction(id, formData);
   }
 
   return (
@@ -135,6 +159,7 @@ export default async function LancamentosPage({
               {lancamento.status === StatusLancamento.PENDENTE &&
                 isAtrasado(lancamento) &&
                 " (ATRASADO)"}
+              {lancamento.recorrenciaId && " (recorrente)"}
             </span>
             <span>
               {lancamento.conta.nome} / {lancamento.categoria.nome}
@@ -159,6 +184,42 @@ export default async function LancamentosPage({
                 </label>
                 <button type="submit">Efetivar</button>
               </form>
+            )}
+            {lancamento.recorrenciaId && (
+              <>
+                <h4>Editar ocorrência</h4>
+                <form action={handleEditarOcorrencia}>
+                  <input type="hidden" name="id" value={lancamento.id} />
+                  <label>
+                    Valor (centavos)
+                    <input
+                      type="number"
+                      name="valor"
+                      step="1"
+                      defaultValue={lancamento.valor}
+                    />
+                  </label>
+                  <label>
+                    Escopo
+                    <select name="escopo">
+                      <option value="SOMENTE_ESTA">Só esta</option>
+                      <option value="ESTA_E_FUTURAS">Esta e futuras</option>
+                    </select>
+                  </label>
+                  <button type="submit">Salvar edição</button>
+                </form>
+                <form action={handleExcluirOcorrencia}>
+                  <input type="hidden" name="id" value={lancamento.id} />
+                  <label>
+                    Escopo
+                    <select name="escopo">
+                      <option value="SOMENTE_ESTA">Só esta</option>
+                      <option value="ESTA_E_FUTURAS">Esta e futuras</option>
+                    </select>
+                  </label>
+                  <button type="submit">Excluir ocorrência</button>
+                </form>
+              </>
             )}
           </li>
         ))}
