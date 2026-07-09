@@ -6,7 +6,16 @@ URL="http://127.0.0.1:${PORT}"
 LOG="$(mktemp)"
 PID=""
 
+is_windows_shell() {
+  local uname
+  uname=$(uname -s)
+  [[ "$uname" == MINGW* || "$uname" == MSYS* || "$uname" == CYGWIN* ]]
+}
+
 kill_port_listeners() {
+  if ! command -v netstat >/dev/null 2>&1; then
+    return 0
+  fi
   local pids
   pids=$(netstat -ano | grep ":${PORT}" | grep LISTENING | awk '{print $5}' | sort -u || true)
   for p in $pids; do
@@ -24,8 +33,16 @@ cleanup() {
 }
 trap cleanup EXIT
 
-echo "Starting dev server..."
-npm run dev >"$LOG" 2>&1 &
+# Use npm.cmd on Windows Git Bash to avoid the npm shell script's WSL
+# detection, which can fail with "WSL 1 is not supported" in sanitized PATHs.
+if is_windows_shell && command -v npm.cmd >/dev/null 2>&1; then
+  DEV_CMD="npm.cmd run dev"
+else
+  DEV_CMD="npm run dev"
+fi
+
+echo "Starting dev server with: $DEV_CMD"
+$DEV_CMD >"$LOG" 2>&1 &
 PID=$!
 
 for _ in $(seq 1 60); do
