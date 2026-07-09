@@ -121,9 +121,13 @@ export async function efetivarLancamentoAction(
     return { success: false, error: "Não autenticado" };
   }
 
-  const parsed = efetivarLancamentoSchema.safeParse(
-    Object.fromEntries(formData),
-  );
+  const rawValor = formData.get("valor");
+  const payload =
+    rawValor === "" || rawValor === null
+      ? {}
+      : { valor: rawValor };
+
+  const parsed = efetivarLancamentoSchema.safeParse(payload);
   if (!parsed.success) {
     return {
       success: false,
@@ -135,7 +139,7 @@ export async function efetivarLancamentoAction(
     await efetivarLancamento(
       session.user.id,
       id,
-      parsed.data.valor !== undefined ? parsed.data.valor : undefined,
+      parsed.data.valor,
     );
     revalidatePath("/dashboard/lancamentos");
     return { success: true };

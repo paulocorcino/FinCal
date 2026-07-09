@@ -121,6 +121,36 @@ describe("lancamento integration", () => {
     expect(fromDb?.valor).toBe(9999);
   });
 
+  it("efetiva keeping the original valor when no adjusted valor is provided", async () => {
+    const email = "lancamento-efetivar-sem-valor@example.com";
+    await signup(await createUserForm(email, "password123"));
+    const user = await prisma.user.findUnique({ where: { email } });
+    expect(user).not.toBeNull();
+
+    const conta = await createConta(user!.id, {
+      nome: "Conta Efetivar Sem Valor",
+      saldoInicial: 0,
+      papel: "CORRENTE",
+    });
+
+    const categoria = (await getCategoriesByUser(user!.id)).find(
+      (c) => c.tipo === "RECEITA",
+    );
+    expect(categoria).toBeDefined();
+
+    const created = await createLancamento(user!.id, {
+      tipo: "RECEITA",
+      valor: 12345,
+      data: parseDataLancamento("2026-07-08"),
+      contaId: conta.id,
+      categoriaId: categoria!.id,
+    });
+
+    const efetivado = await efetivarLancamento(user!.id, created.id);
+    expect(efetivado.status).toBe(StatusLancamento.EFETIVADO);
+    expect(efetivado.valor).toBe(12345);
+  });
+
   it("rejects a lancamento whose categoria tipo does not match", async () => {
     const email = "lancamento-tipo@example.com";
     await signup(await createUserForm(email, "password123"));
