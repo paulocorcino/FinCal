@@ -72,7 +72,6 @@ export function calcularSaldoAtual(
   return lancamentos
     .filter(
       (l) =>
-        l.tipo !== "TRANSFERENCIA" &&
         l.status === StatusLancamento.EFETIVADO &&
         toSPDateString(l.data) <= hojeStr,
     )
@@ -100,10 +99,7 @@ export function calcularSerieProjetada(
   let currentStr = hojeStr;
   while (true) {
     const saldo = lancamentos
-      .filter(
-        (l) =>
-          l.tipo !== "TRANSFERENCIA" && toSPDateString(l.data) <= currentStr,
-      )
+      .filter((l) => toSPDateString(l.data) <= currentStr)
       .reduce((sum, l) => sum + valorLiquido(l), base);
 
     serie.push({ data: currentStr, saldo });
