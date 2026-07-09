@@ -4,6 +4,7 @@ import path from "node:path";
 
 process.env.DATABASE_URL = "file:./test-integration.db";
 process.env.AUTH_SECRET = "test-secret";
+process.env.AUTH_TRUST_HOST = "true";
 
 const dbFile = path.resolve(process.cwd(), "prisma", "test-integration.db");
 const journalFile = `${dbFile}-journal`;

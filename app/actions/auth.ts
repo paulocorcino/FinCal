@@ -18,7 +18,8 @@ export async function signup(formData: FormData): Promise<SignupResult> {
     return { error: parsed.error.errors.map((e) => e.message).join(", ") };
   }
 
-  const { email, password } = parsed.data;
+  const email = parsed.data.email.toLowerCase();
+  const { password } = parsed.data;
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
     return { error: "E-mail já cadastrado" };

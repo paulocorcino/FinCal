@@ -49,7 +49,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
-  trustHost: true,
+  trustHost: process.env.AUTH_TRUST_HOST === "true" || process.env.AUTH_TRUST_HOST === "1",
   callbacks: {
     authorized: ({ auth: session, request: { nextUrl } }) => {
       const isLoggedIn = !!session?.user;

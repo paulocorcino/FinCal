@@ -19,5 +19,6 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 ENV NODE_ENV=production
+ENV AUTH_TRUST_HOST=true
 
 CMD ["sh", "-c", "npx prisma migrate deploy && npx prisma db seed && npm start"]

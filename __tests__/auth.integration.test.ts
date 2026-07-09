@@ -51,7 +51,7 @@ async function loginAndGetSessionCookie(email: string, password: string) {
 
 describe("auth integration", () => {
   it("stores a bcrypt-hashed password and rejects duplicate e-mails", async () => {
-    const form = await createUserForm("user1@example.com", "password123");
+    const form = await createUserForm("User1@Example.com", "password123");
     const first = await signup(form);
     expect(first).toEqual({ success: true });
 
@@ -66,6 +66,13 @@ describe("auth integration", () => {
       await createUserForm("user1@example.com", "password123"),
     );
     expect(duplicate).toHaveProperty("error");
+
+    const loginWithMixedCase = await verifyCredentials(
+      "USER1@EXAMPLE.COM",
+      "password123",
+    );
+    expect(loginWithMixedCase).not.toBeNull();
+    expect(loginWithMixedCase?.email).toBe("user1@example.com");
   });
 
   it("seeds 10 default categories linked to the new user", async () => {
@@ -96,10 +103,10 @@ describe("auth integration", () => {
     expect(b).toEqual({ success: true });
 
     const userA = await prisma.user.findUnique({
-      where: { email: "userA@example.com" },
+      where: { email: "usera@example.com" },
     });
     const userB = await prisma.user.findUnique({
-      where: { email: "userB@example.com" },
+      where: { email: "userb@example.com" },
     });
 
     const categoriesA = await getCategoriesByUser(userA!.id);

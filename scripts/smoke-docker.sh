@@ -26,6 +26,7 @@ docker run -d \
   -p "$PORT:3000" \
   -e DATABASE_URL="file:/data/fincal.db" \
   -e AUTH_SECRET="smoke-secret" \
+  -e AUTH_TRUST_HOST="true" \
   -e OPENAI_API_KEY="" \
   -e OPENAI_MODEL="gpt-4o-mini" \
   -v "$VOLUME:/data" \
