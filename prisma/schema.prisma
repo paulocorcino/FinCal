@@ -50,6 +50,7 @@ model User {
   sessions       Session[]
   categorias     Categoria[]
   contas         Conta[]
+  lancamentos    Lancamento[]
 }
 
 enum Papel {
@@ -60,14 +61,15 @@ enum Papel {
 }
 
 model Conta {
-  id            String   @id @default(cuid())
+  id            String      @id @default(cuid())
   nome          String
   saldoInicial  Int
   papel         Papel
   userId        String
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  lancamentos   Lancamento[]
 
   @@index([userId])
   @@unique([userId, nome])
@@ -82,12 +84,42 @@ model VerificationToken {
 }
 
 model Categoria {
-  id     String @id @default(cuid())
-  nome   String
-  tipo   String
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String       @id @default(cuid())
+  nome        String
+  tipo        String
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lancamentos Lancamento[]
 
   @@index([userId])
   @@unique([userId, nome])
+}
+
+enum StatusLancamento {
+  PENDENTE
+  EFETIVADO
+}
+
+enum TipoLancamento {
+  RECEITA
+  DESPESA
+}
+
+model Lancamento {
+  id          String           @id @default(cuid())
+  tipo        TipoLancamento
+  valor       Int
+  data        DateTime
+  status      StatusLancamento
+  userId      String
+  contaId     String
+  categoriaId String
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conta     Conta     @relation(fields: [contaId], references: [id], onDelete: Cascade)
+  categoria Categoria @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
