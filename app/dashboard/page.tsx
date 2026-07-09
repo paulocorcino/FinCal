@@ -24,6 +24,7 @@ export default async function DashboardPage() {
         <Link href="/dashboard/categorias">Categorias</Link>
         <Link href="/dashboard/lancamentos">Lançamentos</Link>
         <Link href="/dashboard/saldo">Saldo</Link>
+        <Link href="/dashboard/agenda">Agenda</Link>
       </nav>
       <h2>Categorias</h2>
       <ul>

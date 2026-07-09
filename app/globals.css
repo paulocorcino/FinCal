@@ -1,1 +1,58 @@
 /* Minimal global styles for Next.js App Router. */
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+}
+
+.calendar-header {
+  font-weight: bold;
+  text-align: center;
+}
+
+.calendar-day {
+  border: 1px solid #ccc;
+  min-height: 6rem;
+  padding: 0.25rem;
+}
+
+.day-number {
+  display: inline-block;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+.calendar-day ul,
+.day-panel ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.calendar-day li,
+.day-panel li {
+  font-size: 0.875rem;
+  margin-bottom: 0.125rem;
+}
+
+.receita {
+  color: #16a34a;
+}
+
+.despesa {
+  color: #dc2626;
+}
+
+.pendente {
+  font-style: italic;
+}
+
+.efetivado {
+  font-weight: bold;
+}
+
+.atrasado {
+  color: #7c2d12;
+  background-color: #fed7aa;
+}
