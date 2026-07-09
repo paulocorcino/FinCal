@@ -16,6 +16,12 @@ export default defineConfig({
     environment: "node",
     include: ["__tests__/**/*.integration.test.ts"],
     setupFiles: ["__tests__/setup-integration.ts"],
+    pool: "forks",
+    poolOptions: {
+      forks: {
+        singleFork: true,
+      },
+    },
     server: {
       deps: {
         inline: [/next-auth/, /@auth\/core/],
