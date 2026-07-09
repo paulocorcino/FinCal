@@ -11,6 +11,7 @@ COPY prisma ./prisma
 RUN npx prisma generate
 
 COPY . .
+ENV AUTH_SECRET=build-placeholder
 RUN npm run build
 
 EXPOSE 3000
