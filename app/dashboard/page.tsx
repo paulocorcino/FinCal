@@ -23,6 +23,7 @@ export default async function DashboardPage() {
         <Link href="/dashboard/contas">Contas</Link>
         <Link href="/dashboard/categorias">Categorias</Link>
         <Link href="/dashboard/lancamentos">Lançamentos</Link>
+        <Link href="/dashboard/saldo">Saldo</Link>
       </nav>
       <h2>Categorias</h2>
       <ul>
