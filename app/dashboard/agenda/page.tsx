@@ -105,6 +105,9 @@ export default async function AgendaPage({
             {nome}
           </div>
         ))}
+        {Array.from({ length: dias[0]?.diaDaSemana ?? 0 }).map((_, i) => (
+          <div key={`pad-${i}`} className="calendar-day empty" />
+        ))}
         {dias.map((dia) => {
           const doDia = porDia.get(dia.data) ?? [];
           return (

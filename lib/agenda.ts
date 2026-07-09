@@ -7,6 +7,9 @@ export function parseMes(mes: string): { ano: number; mes: number } {
     throw new Error("Mês deve estar no formato YYYY-MM");
   }
   const [ano, mesNumero] = mes.split("-").map(Number);
+  if (mesNumero < 1 || mesNumero > 12) {
+    throw new Error("Mês deve estar entre 01 e 12");
+  }
   return { ano, mes: mesNumero };
 }
 

@@ -17,6 +17,10 @@
   padding: 0.25rem;
 }
 
+.calendar-day.empty {
+  background-color: #f3f4f6;
+}
+
 .day-number {
   display: inline-block;
   font-weight: bold;

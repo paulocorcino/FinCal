@@ -15,9 +15,11 @@ describe("agenda helpers", () => {
     expect(parseMes("2026-07")).toEqual({ ano: 2026, mes: 7 });
   });
 
-  it("parseMes rejeita formato inválido", () => {
+  it("parseMes rejeita formato e mês inválido", () => {
     expect(() => parseMes("2026-7")).toThrow("YYYY-MM");
     expect(() => parseMes("07-2026")).toThrow("YYYY-MM");
+    expect(() => parseMes("2026-13")).toThrow("01 e 12");
+    expect(() => parseMes("2026-00")).toThrow("01 e 12");
   });
 
   it("mesAtualSP retorna o mês corrente em São Paulo", () => {
