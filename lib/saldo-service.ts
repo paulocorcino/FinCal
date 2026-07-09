@@ -1,10 +1,14 @@
 import { getContasByUser } from "@/lib/contas";
 import { getLancamentosByUser, parseDataLancamento } from "@/lib/lancamentos";
 import {
+  addDaysSP,
   calcularSerieProjetada,
   fimDoMesSP,
+  toSPDateString,
   type SaldoResultado,
 } from "@/lib/saldo";
+
+const MAXIMO_HORIZONTE_DIAS = 365;
 
 export type SaldoFilters = {
   contaId?: string;
@@ -20,14 +24,21 @@ export async function getSaldoForUser(
     ? todasContas.filter((c) => c.id === filters.contaId)
     : todasContas;
 
+  const hoje = new Date();
+  const hojeStr = toSPDateString(hoje);
+  const maxAteStr = addDaysSP(hojeStr, MAXIMO_HORIZONTE_DIAS);
+
+  const ateStr = filters.ate
+    ? filters.ate <= maxAteStr
+      ? filters.ate
+      : maxAteStr
+    : fimDoMesSP(hoje);
+  const ate = parseDataLancamento(ateStr);
+
   const lancamentos = await getLancamentosByUser(userId, {
     contaId: filters.contaId,
+    end: ateStr,
   });
-
-  const hoje = new Date();
-  const ate = filters.ate
-    ? parseDataLancamento(filters.ate)
-    : parseDataLancamento(fimDoMesSP(hoje));
 
   return calcularSerieProjetada(
     contas.map((c) => ({ id: c.id, saldoInicial: c.saldoInicial })),

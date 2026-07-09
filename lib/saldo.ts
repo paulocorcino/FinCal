@@ -36,7 +36,7 @@ export function toSPDateString(date: Date): string {
   }).format(date);
 }
 
-function addDaysSP(dateStr: string, days: number): string {
+export function addDaysSP(dateStr: string, days: number): string {
   const [year, month, day] = dateStr.split("-").map(Number);
   const next = new Date(Date.UTC(year, month - 1, day + days));
   const y = next.getUTCFullYear();
@@ -115,6 +115,3 @@ export function calcularSerieProjetada(
   return { saldoAtual, serieProjetada: serie, primeiroDiaNegativo };
 }
 
-export function parseDataSaldo(dataStr: string): Date {
-  return parseDataLancamento(dataStr);
-}

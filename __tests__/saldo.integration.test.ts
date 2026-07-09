@@ -5,6 +5,7 @@ import { signup } from "../app/actions/auth";
 import { createConta } from "../lib/contas";
 import { getCategoriesByUser } from "../lib/categories";
 import { createLancamento, parseDataLancamento, addDays } from "../lib/lancamentos";
+import { addDaysSP } from "../lib/saldo";
 import { prisma } from "../lib/prisma";
 import { StatusLancamento } from "@prisma/client";
 
@@ -119,5 +120,33 @@ describe("saldo API", () => {
       { data: hojeStr, saldo: 12000 },
       { data: amanhaStr, saldo: 12000 },
     ]);
+  });
+
+  it("limita horizonte a no máximo 365 dias", async () => {
+    const email = "saldo-horizonte@example.com";
+    await signup(await createUserForm(email, "password123"));
+    const user = await prisma.user.findUnique({ where: { email } });
+    expect(user).not.toBeNull();
+
+    await createConta(user!.id, {
+      nome: "Conta Horizonte",
+      saldoInicial: 0,
+      papel: "CORRENTE",
+    });
+
+    vi.mocked(auth).mockResolvedValue({
+      user: { id: user!.id, email: user!.email },
+    } as ReturnType<typeof auth>);
+
+    const hojeStr = spDateStr(new Date());
+    const maxAteStr = addDaysSP(hojeStr, 365);
+
+    const response = await GET(
+      new Request("http://localhost:3000/api/saldo?ate=2099-12-31"),
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.serieProjetada.at(-1)?.data).toBe(maxAteStr);
   });
 });
