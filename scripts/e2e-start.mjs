@@ -5,12 +5,13 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "..");
+const dbFile = path.resolve(repoRoot, "prisma", "e2e-smoke.db");
+const dbUrl = `file:${dbFile}`;
 
-process.env.DATABASE_URL = "file:./e2e-smoke.db";
+process.env.DATABASE_URL = dbUrl;
 process.env.AUTH_SECRET = "e2e-smoke-secret-32chars-minimo";
 process.env.AUTH_TRUST_HOST = "true";
 
-const dbFile = path.resolve(repoRoot, "prisma", "e2e-smoke.db");
 const journalFile = `${dbFile}-journal`;
 
 for (const file of [dbFile, journalFile]) {
@@ -23,6 +24,7 @@ const migrate = spawn("npx", ["prisma", "migrate", "deploy"], {
   cwd: repoRoot,
   stdio: "inherit",
   shell: true,
+  env: { ...process.env, DATABASE_URL: dbUrl },
 });
 
 migrate.on("close", (code) => {
@@ -33,6 +35,7 @@ migrate.on("close", (code) => {
   const server = spawn("node", [".next/standalone/server.js"], {
     cwd: repoRoot,
     stdio: "inherit",
+    env: { ...process.env, DATABASE_URL: dbUrl },
   });
 
   server.on("close", (serverCode) => {
