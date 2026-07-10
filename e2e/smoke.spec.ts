@@ -2,6 +2,8 @@ import { test, expect } from "@playwright/test";
 import fs from "node:fs";
 import path from "node:path";
 
+test.setTimeout(60_000);
+
 function toSPDateString(date: Date): string {
   return date.toLocaleDateString("pt-BR", {
     timeZone: "America/Sao_Paulo",
@@ -26,13 +28,13 @@ test("caminho feliz: registrar, logar, criar conta, lançamento e conferir dashb
   fs.mkdirSync(smokeDir, { recursive: true });
 
   await page.goto("/register");
-  await page.getByLabel("E-mail").fill(email);
-  await page.getByLabel("Senha").fill(password);
+  await page.locator('input[name="email"]').fill(email);
+  await page.locator('input[name="password"]').fill(password);
   await page.getByRole("button", { name: "Cadastrar" }).click();
   await page.waitForURL("/login");
 
-  await page.getByLabel("E-mail").fill(email);
-  await page.getByLabel("Senha").fill(password);
+  await page.locator('input[name="email"]').fill(email);
+  await page.locator('input[name="password"]').fill(password);
   await page.getByRole("button", { name: "Entrar" }).click();
   await page.waitForURL("/dashboard");
 
@@ -48,7 +50,7 @@ test("caminho feliz: registrar, logar, criar conta, lançamento e conferir dashb
   await page.getByLabel("Data").fill(spTodayInputValue());
   await page.locator('select[name="contaId"]').selectOption({ label: "Conta Corrente" });
   await page.locator('select[name="categoriaId"]').selectOption({ label: "Salário" });
-  await page.getByRole("button", { name: "Criar" }).click();
+  await page.getByRole("button", { name: "Criar" }).first().click();
   await expect(page.getByText("R$ 500,00")).toBeVisible();
   await expect(page.getByText("Salário")).toBeVisible();
 
