@@ -123,7 +123,12 @@ export async function getLancamentosByUser(
     data?: { gte?: Date; lt?: Date };
     contaId?: string;
     status?: StatusLancamento;
+    transferenciaId?: null;
   } = { userId };
+
+  if (filters.excluirTransferencias) {
+    where.transferenciaId = null;
+  }
 
   if (filters.start) {
     where.data = { gte: parseDataLancamento(filters.start) };

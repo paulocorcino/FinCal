@@ -23,6 +23,7 @@ export const lancamentoFiltersSchema = z.object({
   end: z.string().regex(dataRegex).optional(),
   contaId: z.string().optional(),
   status: z.enum(statusValues).optional(),
+  excluirTransferencias: z.boolean().optional(),
 });
 
 export type LancamentoFormData = z.infer<typeof lancamentoSchema>;

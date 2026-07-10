@@ -59,6 +59,7 @@ export default async function LancamentosPage({
       end: searchParams.end,
       contaId: searchParams.contaId,
       status: searchParams.status as StatusLancamento | undefined,
+      excluirTransferencias: true,
     }),
   ]);
 
@@ -150,7 +151,7 @@ export default async function LancamentosPage({
                 valor: lancamento.valor,
                 data: lancamento.data.toISOString().slice(0, 10),
                 contaId: lancamento.contaId,
-                categoriaId: lancamento.categoriaId,
+                categoriaId: lancamento.categoriaId ?? "",
               } as LancamentoFormDefaultValues}
               action={handleUpdate}
             />

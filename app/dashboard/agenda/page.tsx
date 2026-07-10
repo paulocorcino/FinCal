@@ -71,6 +71,7 @@ export default async function AgendaPage({
     getLancamentosByUserAction({
       start: primeiroDiaDoMesSP(mes),
       end: ultimoDiaDoMesSP(mes),
+      excluirTransferencias: true,
     }),
   ]);
 
@@ -150,7 +151,7 @@ export default async function AgendaPage({
                   <span className="atrasado">ATRASADO</span>
                 )}
                 <span>
-                  {l.conta.nome} / {l.categoria.nome}
+                  {l.conta.nome} / {l.categoria?.nome ?? "Sem categoria"}
                 </span>
               </li>
             ))}
