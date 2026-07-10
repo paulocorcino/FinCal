@@ -81,8 +81,7 @@ function gerarSemanal(
   fim: string,
 ): string[] {
   const datas: string[] = [];
-  const [year, month, day] = dataInicio.split("-").map(Number);
-  let cursor = new Date(Date.UTC(year, month - 1, day));
+  let cursor = parseDataLancamento(dataInicio);
 
   // advance to the first date that matches the requested weekday
   while (cursor.getUTCDay() !== dia) {

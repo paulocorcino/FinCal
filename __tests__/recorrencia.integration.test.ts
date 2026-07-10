@@ -207,25 +207,22 @@ describe("recorrência", () => {
     const user = await setupUser(email);
     const { conta, receita } = await setupContaECategorias(user.id);
 
-    await createConta(user.id, {
-      nome: "Conta B",
-      saldoInicial: 5000,
-      papel: "CORRENTE",
-    });
+    const hojeStr = spDateStr(new Date());
+    const dataRecorrencia = addDaysSP(hojeStr, 5);
 
     const recorrencia = await createRecorrencia(user.id, {
       tipo: TipoLancamento.RECEITA,
       valor: 2000,
-      dataInicio: "2026-04-01",
+      dataInicio: dataRecorrencia,
       frequencia: FrequenciaRecorrencia.MENSAL,
-      dia: 5,
+      dia: Number(dataRecorrencia.slice(8, 10)),
       contaId: conta.id,
       categoriaId: receita.id,
     });
 
     await materializarRecorrencias(user.id, {
-      start: "2026-04-01",
-      end: "2026-04-30",
+      start: dataRecorrencia,
+      end: addDaysSP(dataRecorrencia, 30),
     });
 
     const lancamentos = await prisma.lancamento.findMany({
@@ -238,8 +235,8 @@ describe("recorrência", () => {
       user: { id: user.id, email: user.email },
     } as ReturnType<typeof auth>);
 
-    const saldo = await getSaldoForUser(user.id, { ate: "2026-04-05" });
-    const ponto = saldo.serieProjetada.find((p) => p.data === "2026-04-05");
+    const saldo = await getSaldoForUser(user.id, { ate: dataRecorrencia });
+    const ponto = saldo.serieProjetada.find((p) => p.data === dataRecorrencia);
     expect(ponto?.saldo).toBe(2000);
   });
 
