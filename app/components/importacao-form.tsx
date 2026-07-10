@@ -27,6 +27,11 @@ function dataParaInput(date: Date): string {
   return date.toISOString().slice(0, 10);
 }
 
+function inputParaData(value: string): Date {
+  const [year, month, day] = value.split("-").map(Number);
+  return new Date(Date.UTC(year, month - 1, day));
+}
+
 function atualizarCandidato(
   candidatos: Candidato[],
   id: string,
@@ -163,7 +168,7 @@ export function ImportacaoForm({ contas, categorias }: ImportacaoFormProps) {
                         onChange={(e) =>
                           setCandidatos((prev) =>
                             atualizarCandidato(prev, candidato.id, {
-                              data: new Date(e.target.value + "T12:00:00"),
+                              data: inputParaData(e.target.value),
                             }),
                           )
                         }
