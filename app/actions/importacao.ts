@@ -112,9 +112,19 @@ export async function confirmarImportacaoAction(
     return { success: false, error: "Candidatos inválidos" };
   }
 
+  const candidatosNormalizados = Array.isArray(parsedCandidatos)
+    ? parsedCandidatos.map((c: { data?: string }) => ({
+        ...c,
+        data:
+          typeof c.data === "string" && c.data.includes("T")
+            ? c.data.slice(0, 10)
+            : c.data,
+      }))
+    : parsedCandidatos;
+
   const parsed = confirmacaoSchema.safeParse({
     contaId: rawContaId,
-    candidatos: parsedCandidatos,
+    candidatos: candidatosNormalizados,
   });
   if (!parsed.success) {
     return {
