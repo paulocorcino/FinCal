@@ -22,6 +22,10 @@ vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
 
+vi.mock("pdf-parse", () => ({
+  default: vi.fn().mockResolvedValue({ text: "mocked pdf text" }),
+}));
+
 const createFn = vi.fn();
 const mockOpenAI = {
   chat: {

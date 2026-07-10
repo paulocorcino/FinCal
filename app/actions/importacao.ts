@@ -14,11 +14,11 @@ import {
   extractTextFromBuffer,
   extrairCandidatos,
   detectarDuplicados,
-  type Candidato,
 } from "@/lib/importacao";
 import {
   uploadImportacaoSchema,
   confirmacaoSchema,
+  type Candidato,
 } from "@/lib/importacao-schema";
 
 export type ExtrairCandidatosResult =
