@@ -18,6 +18,13 @@ function spTodayInputValue(): string {
   return `${parts[2]}-${parts[1]}-${parts[0]}`;
 }
 
+async function fillField(page, name: string, value: string) {
+  const locator = page.locator(`input[name="${name}"]`);
+  await locator.waitFor({ state: "visible" });
+  await locator.fill(value);
+  await expect(locator).toHaveValue(value);
+}
+
 test("caminho feliz: registrar, logar, criar conta, lançamento e conferir dashboard", async ({
   page,
 }) => {
@@ -28,13 +35,15 @@ test("caminho feliz: registrar, logar, criar conta, lançamento e conferir dashb
   fs.mkdirSync(smokeDir, { recursive: true });
 
   await page.goto("/register");
-  await page.locator('input[name="email"]').fill(email);
-  await page.locator('input[name="password"]').fill(password);
+  await page.waitForLoadState("networkidle");
+  await fillField(page, "email", email);
+  await fillField(page, "password", password);
   await page.getByRole("button", { name: "Cadastrar" }).click();
   await page.waitForURL("/login");
 
-  await page.locator('input[name="email"]').fill(email);
-  await page.locator('input[name="password"]').fill(password);
+  await page.waitForLoadState("networkidle");
+  await fillField(page, "email", email);
+  await fillField(page, "password", password);
   await page.getByRole("button", { name: "Entrar" }).click();
   await page.waitForURL("/dashboard");
 
@@ -42,24 +51,25 @@ test("caminho feliz: registrar, logar, criar conta, lançamento e conferir dashb
   await page.getByLabel("Nome").fill("Conta Corrente");
   await page.getByLabel("Saldo inicial (centavos)").fill("100000");
   await page.getByRole("button", { name: "Criar" }).click();
-  await expect(page.getByText("Conta Corrente")).toBeVisible();
+  await expect(page.locator('input[value="Conta Corrente"]')).toHaveCount(1);
 
   await page.goto("/dashboard/lancamentos");
+  await page.waitForLoadState("networkidle");
   await page.locator('select[name="tipo"]').selectOption("RECEITA");
   await page.getByLabel("Valor (centavos)").fill("50000");
   await page.getByLabel("Data").fill(spTodayInputValue());
-  await page.locator('select[name="contaId"]').selectOption({ label: "Conta Corrente" });
+  await page.locator('select[name="contaId"]').first().selectOption({ label: "Conta Corrente" });
   await page.locator('select[name="categoriaId"]').selectOption({ label: "Salário" });
   await page.getByRole("button", { name: "Criar" }).first().click();
-  await expect(page.getByText("R$ 500,00")).toBeVisible();
-  await expect(page.getByText("Salário")).toBeVisible();
+  await expect(page.getByText("R$ 500,00").first()).toBeVisible();
+  await expect(page.getByText("Conta Corrente / Salário")).toBeVisible();
 
   await page.goto("/dashboard");
   await expect(page.getByTestId("saldo-projetado-mes")).toContainText("R$ 1.500,00");
   await page.screenshot({ path: path.join(smokeDir, "dashboard.png") });
 
   await page.goto("/dashboard/lancamentos");
-  await expect(page.getByText("R$ 500,00")).toBeVisible();
-  await expect(page.getByText("Salário")).toBeVisible();
+  await expect(page.getByText("R$ 500,00").first()).toBeVisible();
+  await expect(page.getByText("Conta Corrente / Salário")).toBeVisible();
   await page.screenshot({ path: path.join(smokeDir, "lancamentos.png") });
 });

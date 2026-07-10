@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+
 export type LancamentoFormDefaultValues = {
   tipo: string;
   valor: number;
@@ -19,17 +23,23 @@ export function LancamentoForm({
   defaultValues?: LancamentoFormDefaultValues;
   action: (formData: FormData) => Promise<void>;
 }) {
+  const [tipo, setTipo] = useState(defaultValues?.tipo ?? "DESPESA");
+
   const categoriaTipo = defaultValues?.categoriaId
     ? categorias.find((c) => c.id === defaultValues.categoriaId)?.tipo ??
       "DESPESA"
-    : "DESPESA";
+    : tipo;
 
   return (
     <form action={action}>
       {id && <input type="hidden" name="id" value={id} />}
       <label>
         Tipo
-        <select name="tipo" defaultValue={defaultValues?.tipo ?? "DESPESA"}>
+        <select
+          name="tipo"
+          defaultValue={defaultValues?.tipo ?? "DESPESA"}
+          onChange={(e) => setTipo(e.target.value)}
+        >
           <option value="RECEITA">RECEITA</option>
           <option value="DESPESA">DESPESA</option>
         </select>

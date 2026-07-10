@@ -20,6 +20,12 @@ for (const file of [dbFile, journalFile]) {
   }
 }
 
+const staticSource = path.join(repoRoot, ".next", "static");
+const staticTarget = path.join(repoRoot, ".next", "standalone", ".next", "static");
+if (fs.existsSync(staticSource)) {
+  fs.cpSync(staticSource, staticTarget, { recursive: true, force: true });
+}
+
 const migrate = spawn("npx", ["prisma", "migrate", "deploy"], {
   cwd: repoRoot,
   stdio: "inherit",
