@@ -12,6 +12,7 @@ export type LancamentoInput = {
   data: Date;
   contaId: string;
   categoriaId: string;
+  status?: StatusLancamento;
 };
 
 const SP_TIME_ZONE = "America/Sao_Paulo";
@@ -89,7 +90,7 @@ export async function createLancamento(
     data: {
       ...data,
       userId,
-      status: StatusLancamento.PENDENTE,
+      status: data.status ?? StatusLancamento.PENDENTE,
     },
   });
 }

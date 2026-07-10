@@ -12,6 +12,7 @@ export const lancamentoSchema = z.object({
   data: z.string().regex(dataRegex, "Data deve estar no formato YYYY-MM-DD"),
   contaId: z.string().min(1, "Conta é obrigatória"),
   categoriaId: z.string().min(1, "Categoria é obrigatória"),
+  status: z.enum(statusValues).optional(),
 });
 
 export const efetivarLancamentoSchema = z.object({

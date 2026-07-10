@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { StatusLancamento } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import {
   lancamentoSchema,
@@ -28,6 +29,7 @@ function mapInput(parsed: {
   data: string;
   contaId: string;
   categoriaId: string;
+  status?: StatusLancamento;
 }): LancamentoInput {
   return {
     tipo: parsed.tipo,
@@ -35,6 +37,7 @@ function mapInput(parsed: {
     data: parseDataLancamento(parsed.data),
     contaId: parsed.contaId,
     categoriaId: parsed.categoriaId,
+    status: parsed.status,
   };
 }
 
