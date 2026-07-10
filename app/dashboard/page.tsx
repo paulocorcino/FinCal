@@ -43,6 +43,7 @@ export default async function DashboardPage() {
         <Link href="/dashboard/contas">Contas</Link>
         <Link href="/dashboard/categorias">Categorias</Link>
         <Link href="/dashboard/lancamentos">Lançamentos</Link>
+        <Link href="/dashboard/importacao">Importação Assistida</Link>
         <Link href="/dashboard/saldo">Saldo</Link>
         <Link href="/dashboard/agenda">Agenda</Link>
         <Link href="/dashboard/transferencias">Transferências</Link>
