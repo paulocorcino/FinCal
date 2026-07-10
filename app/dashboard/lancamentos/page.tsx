@@ -163,7 +163,7 @@ export default async function LancamentosPage({
               {lancamento.recorrenciaId && " (recorrente)"}
             </span>
             <span>
-              {lancamento.conta.nome} / {lancamento.categoria.nome}
+              {lancamento.conta.nome} / {lancamento.categoria?.nome ?? "Sem categoria"}
             </span>
             <span>{formatDate(lancamento.data)}</span>
             <span>{formatCurrency(lancamento.valor)}</span>
