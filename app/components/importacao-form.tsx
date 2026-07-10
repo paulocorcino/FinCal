@@ -9,6 +9,7 @@ import {
   type ConfirmarImportacaoResult,
 } from "@/app/actions/importacao";
 import type { Candidato } from "@/lib/importacao-schema";
+import { toSPDateString } from "@/lib/saldo";
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat("pt-BR", {
@@ -72,7 +73,12 @@ export function ImportacaoForm({ contas, categorias }: ImportacaoFormProps) {
 
     const confirmForm = new FormData();
     confirmForm.append("contaId", formData.get("contaId") as string);
-    confirmForm.append("candidatos", JSON.stringify(candidatos));
+    confirmForm.append(
+      "candidatos",
+      JSON.stringify(
+        candidatos.map((c) => ({ ...c, data: toSPDateString(c.data) })),
+      ),
+    );
 
     const result: ConfirmarImportacaoResult =
       await confirmarImportacaoAction(confirmForm);
