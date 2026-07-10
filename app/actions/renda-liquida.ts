@@ -20,7 +20,10 @@ export async function createRendaLiquidaAction(formData: FormData): Promise<void
     throw new Error(parsed.error.errors.map((e) => e.message).join(", "));
   }
 
-  await createRendaLiquida(session.user.id, parsed.data);
+  await createRendaLiquida(session.user.id, {
+    valor: Math.round(parsed.data.valor * 100),
+    vigenteDesde: parsed.data.vigenteDesde,
+  });
   revalidatePath("/dashboard/diagnostico");
 }
 
