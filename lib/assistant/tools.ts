@@ -49,6 +49,13 @@ export const marcarComoEfetivadoArgsSchema = z.object({
   lancamentoId: z.string().min(1, "ID do lançamento é obrigatório"),
 });
 
+export const gerarDiagnosticoArgsSchema = z.object({
+  mes: z
+    .string()
+    .regex(/^\d{4}-\d{2}$/, "Mês deve estar no formato YYYY-MM")
+    .optional(),
+});
+
 export type CriarLancamentoArgs = z.infer<typeof criarLancamentoArgsSchema>;
 export type CriarRecorrenciaArgs = z.infer<typeof criarRecorrenciaArgsSchema>;
 export type ListarLancamentosArgs = z.infer<typeof listarLancamentosArgsSchema>;
@@ -58,6 +65,7 @@ export type CalcularSaldoProjetadoArgs = z.infer<
 export type MarcarComoEfetivadoArgs = z.infer<
   typeof marcarComoEfetivadoArgsSchema
 >;
+export type GerarDiagnosticoArgs = z.infer<typeof gerarDiagnosticoArgsSchema>;
 
 export const tools: ChatCompletionTool[] = [
   {
@@ -179,6 +187,24 @@ export const tools: ChatCompletionTool[] = [
           lancamentoId: { type: "string", description: "ID do lançamento" },
         },
         required: ["lancamentoId"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "gerarDiagnostico",
+      description:
+        "Gera o diagnóstico financeiro do mês (métricas determinísticas + narração educativa). Se o mês não for informado, usa o mês atual.",
+      parameters: {
+        type: "object",
+        properties: {
+          mes: {
+            type: "string",
+            description: "Mês no formato YYYY-MM (opcional)",
+          },
+        },
+        required: [],
       },
     },
   },

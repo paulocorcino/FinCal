@@ -24,9 +24,13 @@ import {
   calcularSaldoProjetadoArgsSchema,
   criarLancamentoArgsSchema,
   criarRecorrenciaArgsSchema,
+  gerarDiagnosticoArgsSchema,
   listarLancamentosArgsSchema,
   marcarComoEfetivadoArgsSchema,
 } from "@/lib/assistant/tools";
+import { getDiagnosticoForUser } from "@/lib/diagnostico-service";
+import { narrarDiagnostico } from "@/lib/diagnostico-narrativa";
+import { toSPDateString } from "@/lib/saldo";
 
 function reaisParaCentavos(valor: number | string): number {
   const numero = typeof valor === "string" ? Number(valor.replace(",", ".")) : Number(valor);
@@ -313,6 +317,46 @@ async function executarMarcarComoEfetivado(
   return { type: "success", content: `Lançamento ${lancamentoId} efetivado.` };
 }
 
+async function executarGerarDiagnostico(
+  userId: string,
+  args: Record<string, unknown>,
+): Promise<ToolCallResult> {
+  const parsed = gerarDiagnosticoArgsSchema.safeParse(args);
+  if (!parsed.success) {
+    return {
+      type: "error",
+      message: `Não entendi os parâmetros: ${parsed.error.errors.map((e) => e.message).join("; ")}.`,
+    };
+  }
+
+  const mes = parsed.data.mes ?? toSPDateString(new Date()).slice(0, 7);
+  const metrics = await getDiagnosticoForUser(userId, mes);
+  if (!metrics) {
+    return {
+      type: "error",
+      message:
+        "Diagnóstico não disponível: é necessário cadastrar a renda líquida primeiro.",
+    };
+  }
+
+  const narrativa = await narrarDiagnostico(metrics);
+
+  const content = JSON.stringify({
+    mes: metrics.mes,
+    rendaLiquida: metrics.rendaLiquida,
+    gastosFixos: metrics.gastosFixos,
+    gastosDiaADia: metrics.gastosDiaADia,
+    sobra: metrics.sobra,
+    taxaPoupanca: metrics.taxaPoupanca,
+    reservaAtual: metrics.reservaAtual,
+    metaReserva: metrics.metaReserva,
+    gastoMensalMedio: metrics.gastoMensalMedio,
+    narrativa,
+  });
+
+  return { type: "success", content };
+}
+
 export async function executeTool(
   userId: string,
   toolName: AssistantToolName,
@@ -330,6 +374,8 @@ export async function executeTool(
       return executarCalcularSaldoProjetado(userId, args);
     case "marcarComoEfetivado":
       return executarMarcarComoEfetivado(userId, args, confirmed);
+    case "gerarDiagnostico":
+      return executarGerarDiagnostico(userId, args);
     default:
       return { type: "error", message: "Tool não reconhecida" };
   }

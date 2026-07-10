@@ -8,36 +8,20 @@ import {
   getRendaLiquidaVigente,
 } from "@/lib/renda-liquida";
 
-export type RendaLiquidaActionResult =
-  | { success: true }
-  | { success: false; error: string };
-
-export async function createRendaLiquidaAction(
-  formData: FormData,
-): Promise<RendaLiquidaActionResult> {
+export async function createRendaLiquidaAction(formData: FormData): Promise<void> {
   const session = await auth();
   if (!session?.user?.id) {
-    return { success: false, error: "Não autenticado" };
+    throw new Error("Não autenticado");
   }
 
   const raw = Object.fromEntries(formData);
   const parsed = rendaLiquidaSchema.safeParse(raw);
   if (!parsed.success) {
-    return {
-      success: false,
-      error: parsed.error.errors.map((e) => e.message).join(", "),
-    };
+    throw new Error(parsed.error.errors.map((e) => e.message).join(", "));
   }
 
-  try {
-    await createRendaLiquida(session.user.id, parsed.data);
-    revalidatePath("/dashboard/diagnostico");
-    return { success: true };
-  } catch (e) {
-    console.error("createRendaLiquidaAction failed:", e);
-    const message = e instanceof Error ? e.message : "Erro ao salvar renda líquida";
-    return { success: false, error: message };
-  }
+  await createRendaLiquida(session.user.id, parsed.data);
+  revalidatePath("/dashboard/diagnostico");
 }
 
 export async function getRendaLiquidaVigenteAction(mes: string) {

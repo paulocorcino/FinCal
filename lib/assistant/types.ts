@@ -45,6 +45,7 @@ export const ASSISTANT_TOOL_NAMES = [
   "listarLancamentos",
   "calcularSaldoProjetado",
   "marcarComoEfetivado",
+  "gerarDiagnostico",
 ] as const;
 
 export type AssistantToolName = (typeof ASSISTANT_TOOL_NAMES)[number];

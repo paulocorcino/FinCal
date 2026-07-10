@@ -49,6 +49,7 @@ export default async function DashboardPage() {
         <Link href="/dashboard/transferencias">Transferências</Link>
         <Link href="/dashboard/recorrencias">Recorrências</Link>
         <Link href="/dashboard/assistente">Assistente</Link>
+        <Link href="/dashboard/diagnostico">Diagnóstico</Link>
       </nav>
 
       <section data-testid="saldo-cards">
