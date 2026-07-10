@@ -121,7 +121,7 @@ describe("assistant integration", () => {
 
     vi.mocked(auth).mockResolvedValue({
       user: { id: user.id, email: user.email },
-    } as ReturnType<typeof auth>);
+    } as unknown as ReturnType<typeof auth>);
 
     createFn
       .mockResolvedValueOnce(
@@ -163,7 +163,7 @@ describe("assistant integration", () => {
 
     vi.mocked(auth).mockResolvedValue({
       user: { id: user.id, email: user.email },
-    } as ReturnType<typeof auth>);
+    } as unknown as ReturnType<typeof auth>);
 
     const args = {
       tipo: "DESPESA",

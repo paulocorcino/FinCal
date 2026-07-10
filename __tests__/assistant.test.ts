@@ -206,8 +206,6 @@ describe("assistant tool executor", () => {
         nome: "Moradia",
         tipo: "DESPESA",
         userId: "u1",
-        createdAt: new Date(),
-        updatedAt: new Date(),
       },
     ] as Awaited<ReturnType<typeof getCategoriesByUser>>);
 
