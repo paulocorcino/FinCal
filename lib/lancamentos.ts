@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import {
+  Prisma,
   StatusLancamento,
   TipoLancamento,
   type Lancamento,
@@ -58,8 +59,10 @@ async function validateCategoriaCompativel(
   userId: string,
   categoriaId: string,
   tipo: TipoLancamento,
+  tx?: Prisma.TransactionClient,
 ) {
-  const categoria = await prisma.categoria.findFirst({
+  const db = tx ?? prisma;
+  const categoria = await db.categoria.findFirst({
     where: { id: categoriaId, userId },
   });
   if (!categoria) {
@@ -70,8 +73,13 @@ async function validateCategoriaCompativel(
   }
 }
 
-async function validateContaOwnership(userId: string, contaId: string) {
-  const conta = await prisma.conta.findFirst({
+async function validateContaOwnership(
+  userId: string,
+  contaId: string,
+  tx?: Prisma.TransactionClient,
+) {
+  const db = tx ?? prisma;
+  const conta = await db.conta.findFirst({
     where: { id: contaId, userId },
   });
   if (!conta) {
@@ -82,11 +90,13 @@ async function validateContaOwnership(userId: string, contaId: string) {
 export async function createLancamento(
   userId: string,
   data: LancamentoInput,
+  tx?: Prisma.TransactionClient,
 ) {
-  await validateContaOwnership(userId, data.contaId);
-  await validateCategoriaCompativel(userId, data.categoriaId, data.tipo);
+  const db = tx ?? prisma;
+  await validateContaOwnership(userId, data.contaId, tx);
+  await validateCategoriaCompativel(userId, data.categoriaId, data.tipo, tx);
 
-  return prisma.lancamento.create({
+  return db.lancamento.create({
     data: {
       ...data,
       userId,

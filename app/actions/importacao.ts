@@ -145,16 +145,22 @@ export async function confirmarImportacaoAction(
   const selecionados = candidatos.filter((c) => c.selecionado);
 
   try {
-    for (const candidato of selecionados) {
-      await createLancamento(userId, {
-        tipo: candidato.tipo,
-        valor: candidato.valor,
-        data: parseDataLancamento(candidato.data),
-        contaId,
-        categoriaId: candidato.categoriaId,
-        status: StatusLancamento.EFETIVADO,
-      });
-    }
+    await prisma.$transaction(async (tx) => {
+      for (const candidato of selecionados) {
+        await createLancamento(
+          userId,
+          {
+            tipo: candidato.tipo,
+            valor: candidato.valor,
+            data: parseDataLancamento(candidato.data),
+            contaId,
+            categoriaId: candidato.categoriaId,
+            status: StatusLancamento.EFETIVADO,
+          },
+          tx,
+        );
+      }
+    });
 
     revalidatePath("/dashboard/lancamentos");
     revalidatePath("/dashboard/importacao");
