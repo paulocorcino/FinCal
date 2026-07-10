@@ -40,9 +40,9 @@ model Session {
 }
 
 model User {
-  id             String        @id @default(cuid())
+  id             String          @id @default(cuid())
   name           String?
-  email          String        @unique
+  email          String          @unique
   emailVerified  DateTime?
   image          String?
   password       String?
@@ -52,6 +52,20 @@ model User {
   contas         Conta[]
   lancamentos    Lancamento[]
   recorrencias   Recorrencia[]
+  rendasLiquidas RendaLiquida[]
+}
+
+model RendaLiquida {
+  id            String   @id @default(cuid())
+  valor         Int
+  vigenteDesde  String
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
+  @@index([userId, vigenteDesde])
 }
 
 enum Papel {
