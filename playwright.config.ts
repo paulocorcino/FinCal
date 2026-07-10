@@ -18,7 +18,7 @@ export default defineConfig({
   outputDir: "e2e-results",
   reporter: [["list"]],
   webServer: {
-    command: "npm start",
+    command: "node scripts/e2e-start.mjs",
     url: "http://localhost:3000",
     timeout: 120_000,
     env: {
