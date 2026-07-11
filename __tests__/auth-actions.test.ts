@@ -1,0 +1,111 @@
+import { describe, it, expect, vi, beforeEach } from "vitest";
+
+const { mockSignIn, mockSignOut, mockHash, mockUserCreate, mockUserFindUnique, mockTransaction } =
+  vi.hoisted(() => ({
+    mockSignIn: vi.fn().mockResolvedValue(undefined),
+    mockSignOut: vi.fn().mockResolvedValue(undefined),
+    mockHash: vi.fn().mockResolvedValue("$2b$HASH"),
+    mockUserCreate: vi.fn().mockResolvedValue({ id: "u1" }),
+    mockUserFindUnique: vi.fn(),
+    mockTransaction: vi.fn(
+      async (cb: (tx: unknown) => Promise<unknown>) => cb({})
+    ),
+  }));
+
+vi.mock("@/auth", () => ({
+  signIn: (...args: unknown[]) => mockSignIn(...args),
+  signOut: (...args: unknown[]) => mockSignOut(...args),
+}));
+
+vi.mock("next-auth", () => ({
+  AuthError: class AuthError extends Error {
+    name = "AuthError";
+  },
+}));
+
+vi.mock("bcryptjs", () => ({
+  default: { hash: (...args: unknown[]) => mockHash(...args) },
+}));
+
+vi.mock("@/lib/prisma", () => {
+  const tx = { user: { create: mockUserCreate } };
+  return {
+    prisma: {
+      user: { findUnique: (...args: unknown[]) => mockUserFindUnique(...args) },
+      $transaction: (cb: (t: typeof tx) => Promise<unknown>) =>
+        mockTransaction(cb),
+      __tx: tx,
+    },
+  };
+});
+
+import { login, register, logout } from "@/lib/auth-actions";
+
+const txFixture = { user: { create: mockUserCreate } };
+
+describe("auth-actions", () => {
+  beforeEach(() => {
+    mockSignIn.mockClear();
+    mockSignOut.mockClear();
+    mockHash.mockClear();
+    mockUserCreate.mockClear();
+    mockUserFindUnique.mockClear();
+    mockTransaction.mockClear();
+    mockTransaction.mockImplementation(
+      async (cb: (t: typeof txFixture) => Promise<unknown>) => cb(txFixture)
+    );
+  });
+
+  it("register creates user + 12 categorias and signs in", async () => {
+    mockUserFindUnique.mockResolvedValueOnce(null);
+    const fd = new FormData();
+    fd.set("email", "novo@x.com");
+    fd.set("password", "senha123");
+
+    await register(undefined, fd);
+
+    expect(mockHash).toHaveBeenCalledWith("senha123", 10);
+    expect(mockTransaction).toHaveBeenCalledOnce();
+    expect(mockUserCreate).toHaveBeenCalledOnce();
+    const createArg = mockUserCreate.mock.calls[0][0];
+    expect(createArg.data.email).toBe("novo@x.com");
+    expect(createArg.data.passwordHash).toBe("$2b$HASH");
+    expect(createArg.data.passwordHash).not.toBe("senha123");
+    const seed = createArg.data.categorias.createMany.data;
+    expect(seed).toHaveLength(12);
+    expect(seed).toContainEqual({ nome: "Salário", tipo: "RECEITA" });
+    expect(seed).toContainEqual({ nome: "Moradia", tipo: "DESPESA" });
+    expect(mockSignIn).toHaveBeenCalledWith(
+      "credentials",
+      expect.objectContaining({ email: "novo@x.com", password: "senha123" })
+    );
+  });
+
+  it("register rejects duplicate e-mail without signIn", async () => {
+    mockUserFindUnique.mockResolvedValueOnce({ id: "exists" });
+    const fd = new FormData();
+    fd.set("email", "novo@x.com");
+    fd.set("password", "senha123");
+
+    const result = await register(undefined, fd);
+
+    expect(result).toEqual({ error: "E-mail já cadastrado." });
+    expect(mockSignIn).not.toHaveBeenCalled();
+    expect(mockUserCreate).not.toHaveBeenCalled();
+  });
+
+  it("logout signs out redirecting to /login", async () => {
+    await logout();
+    expect(mockSignOut).toHaveBeenCalledWith({ redirectTo: "/login" });
+  });
+
+  it("login catches AuthError and returns inline message", async () => {
+    const { AuthError } = await import("next-auth");
+    mockSignIn.mockRejectedValueOnce(new AuthError("bad"));
+    const fd = new FormData();
+    fd.set("email", "x@y.z");
+    fd.set("password", "wrong");
+    const result = await login(undefined, fd);
+    expect(result).toEqual({ error: "E-mail ou senha inválidos." });
+  });
+});

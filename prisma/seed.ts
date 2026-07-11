@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { CATEGORIAS_PADRAO } from "@/lib/categorias-padrao";
 
 const prisma = new PrismaClient();
 
@@ -8,7 +9,7 @@ async function main() {
   const password = "fincal123";
   const passwordHash = await bcrypt.hash(password, 10);
 
-  await prisma.user.upsert({
+  const demoUser = await prisma.user.upsert({
     where: { email },
     update: { passwordHash },
     create: {
@@ -16,6 +17,11 @@ async function main() {
       name: "Usuário Demo",
       passwordHash,
     },
+  });
+
+  await prisma.categoria.createMany({
+    data: CATEGORIAS_PADRAO.map((c) => ({ userId: demoUser.id, ...c })),
+    skipDuplicates: true,
   });
 
   console.log(`Seed concluído: demo user ${email} (senha: ${password})`);
