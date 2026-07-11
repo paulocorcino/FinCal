@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -18,7 +18,7 @@ function spTodayInputValue(): string {
   return `${parts[2]}-${parts[1]}-${parts[0]}`;
 }
 
-async function fillField(page, name: string, value: string) {
+async function fillField(page: Page, name: string, value: string) {
   const locator = page.locator(`input[name="${name}"]`);
   await locator.waitFor({ state: "visible" });
   await locator.fill(value);
