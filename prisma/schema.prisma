@@ -31,7 +31,7 @@ model Categoria {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, nome])
+  @@unique([userId, nome, tipo])
 }
 
 model Account {

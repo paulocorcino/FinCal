@@ -18,7 +18,7 @@ import {
 import { logout } from "@/lib/auth-actions";
 import { ChevronDown, LogOut, User, Wallet } from "lucide-react";
 
-type SidebarUser = { name?: string | null; email?: string | null };
+export type SidebarUser = { name?: string | null; email?: string | null };
 
 function initials(user?: SidebarUser) {
   const src = user?.name?.trim() || user?.email?.trim();

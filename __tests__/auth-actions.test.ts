@@ -75,6 +75,8 @@ describe("auth-actions", () => {
     expect(seed).toHaveLength(12);
     expect(seed).toContainEqual({ nome: "Salário", tipo: "RECEITA" });
     expect(seed).toContainEqual({ nome: "Moradia", tipo: "DESPESA" });
+    const uniquePairs = new Set(seed.map((c: { nome: string; tipo: string }) => `${c.nome}|${c.tipo}`));
+    expect(uniquePairs.size).toBe(seed.length);
     expect(mockSignIn).toHaveBeenCalledWith(
       "credentials",
       expect.objectContaining({ email: "novo@x.com", password: "senha123" })

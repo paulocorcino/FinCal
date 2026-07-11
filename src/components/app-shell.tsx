@@ -1,11 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Sidebar, SidebarContent } from "@/components/sidebar";
+import { Sidebar, SidebarContent, type SidebarUser } from "@/components/sidebar";
 import { Topbar } from "@/components/topbar";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
-
-type SidebarUser = { name?: string | null; email?: string | null };
 
 export function AppShell({
   children,
