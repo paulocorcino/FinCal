@@ -12,6 +12,7 @@ RUN npm run build
 
 FROM node:22-slim AS runner
 WORKDIR /app
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 ENV NODE_ENV=production
 ENV DATABASE_URL=file:/data/fincal.db
 ENV NEXT_TELEMETRY_DISABLED=1
