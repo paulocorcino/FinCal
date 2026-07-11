@@ -1,0 +1,7 @@
+# UI desktop-first, responsivo apenas pra baixo
+
+O FinCal AI é projetado **desktop-first**: a arquitetura de informação, a casca de navegação (sidebar persistente), a grade mensal da Agenda e o gráfico de projeção assumem um **viewport largo (≥ `lg`, 1024px)**. Abaixo disso a UI apenas **não quebra** (sidebar colapsa em drawer, Agenda vira lista vertical, piso ~360px sem scroll horizontal) — **não** existe uma arquitetura de informação mobile dedicada. Detalhes no [contrato de UI/UX](../ui-ux.md).
+
+Isto contraria o instinto do setor: apps de finanças pessoais são quase sempre **mobile-first**, porque o uso real é no bolso. Registramos a escolha porque ela é cara de reverter (retrabalha a IA inteira) e um leitor futuro vai estranhar.
+
+Escolhemos assim porque este é um projeto de portfólio cujo trabalho é construído **fatia a fatia por agentes independentes** e **avaliado pela coerência e demonstrabilidade** do resultado, não pela ergonomia de campo. Os dois diferenciais do produto — a grade mensal de Lançamentos e a série diária de Saldo Projetado — lêem melhor em tela larga, e um **único viewport primário declarado** é a forma mais barata de impedir que cada agente invente uma história de responsividade diferente e o app se fragmente. O trade-off aceito: quem usar no celular tem uma experiência apenas "não quebrada", não otimizada. Uma IA mobile dedicada fica deliberadamente fora do MVP e pode ser adicionada depois sem invalidar as decisões de domínio.
