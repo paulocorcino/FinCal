@@ -10,5 +10,5 @@ export default async function AppLayout({
   const session = await auth();
   if (!session?.user) redirect("/login");
 
-  return <AppShell>{children}</AppShell>;
+  return <AppShell user={session.user}>{children}</AppShell>;
 }
