@@ -5,6 +5,9 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { authConfig } from "@/auth.config";
 
+const DUMMY_HASH =
+  "$2b$10$u8OJgXgtQzWGIMIT5HsBluFxrk8e5g3LGlo7oO34Su/l/XEMfNyV.";
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   adapter: PrismaAdapter(prisma),
@@ -21,9 +24,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null;
         }
         const user = await prisma.user.findUnique({ where: { email } });
-        if (!user || !user.passwordHash) return null;
-        const valid = await bcrypt.compare(password, user.passwordHash);
-        if (!valid) return null;
+        const hash = user?.passwordHash ?? DUMMY_HASH;
+        const valid = await bcrypt.compare(password, hash);
+        if (!user || !user.passwordHash || !valid) return null;
         return { id: user.id, name: user.name, email: user.email };
       },
     }),

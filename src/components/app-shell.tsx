@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Sidebar, SidebarContent } from "@/components/sidebar";
 import { Topbar } from "@/components/topbar";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -17,6 +17,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </div>
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetContent side="left" className="w-72 p-0">
+          <SheetTitle className="sr-only">Navegação</SheetTitle>
           <SidebarContent onNavigate={() => setMobileOpen(false)} />
         </SheetContent>
       </Sheet>
