@@ -62,6 +62,10 @@ export function ContaForm({
   }
 
   function handleOpenChange(next: boolean) {
+    if (next) {
+      setError(undefined);
+      setCents(conta?.saldoInicial ?? 0);
+    }
     if (!isControlled) setInternalOpen(next);
     onOpenChange?.(next);
   }

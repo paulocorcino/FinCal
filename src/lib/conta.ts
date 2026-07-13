@@ -17,6 +17,8 @@ export function formatarPapelLabel(p: Papel): string {
       return "Investimento";
     case "CARTAO":
       return "Cartão";
+    default:
+      return p;
   }
 }
 

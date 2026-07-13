@@ -54,6 +54,8 @@ export async function criarConta(
   }
   if (
     typeof saldoInicialRaw !== "string" ||
+    saldoInicialRaw.trim() === "" ||
+    !/^-?\d+$/.test(saldoInicialRaw.trim()) ||
     !Number.isSafeInteger(Number(saldoInicialRaw))
   ) {
     return { error: "Saldo inicial inválido." };
@@ -88,6 +90,8 @@ export async function editarConta(
   }
   if (
     typeof saldoInicialRaw !== "string" ||
+    saldoInicialRaw.trim() === "" ||
+    !/^-?\d+$/.test(saldoInicialRaw.trim()) ||
     !Number.isSafeInteger(Number(saldoInicialRaw))
   ) {
     return { error: "Saldo inicial inválido." };
