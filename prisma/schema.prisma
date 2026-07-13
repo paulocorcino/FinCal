@@ -18,6 +18,7 @@ model User {
   sessions      Session[]
   categorias    Categoria[]
   contas        Conta[]
+  lancamentos   Lancamento[]
 }
 
 model Conta {
@@ -29,7 +30,8 @@ model Conta {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lancamentos Lancamento[]
 
   @@index([userId])
 }
@@ -44,9 +46,32 @@ model Categoria {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lancamentos Lancamento[]
 
   @@unique([userId, nome, tipo])
+}
+
+model Lancamento {
+  id              String   @id @default(cuid())
+  userId          String
+  contaId         String
+  categoriaId     String
+  tipo            String
+  valor           Int
+  data            String
+  status          String
+  recorrenciaId   String?
+  transferenciaId String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conta     Conta      @relation(fields: [contaId], references: [id], onDelete: Restrict)
+  categoria Categoria  @relation(fields: [categoriaId], references: [id], onDelete: Restrict)
+
+  @@index([userId])
+  @@index([userId, data])
 }
 
 model Account {
