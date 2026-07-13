@@ -40,7 +40,10 @@ export function LancamentoChip({
   return (
     <button
       type="button"
-      onClick={onClick}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick?.();
+      }}
       data-tipo={tipo}
       data-status={lancamento.status}
       data-atrasado={atrasado ? "true" : "false"}
@@ -48,8 +51,7 @@ export function LancamentoChip({
       className={cn(
         "flex w-full items-center gap-1 rounded-md border px-1.5 py-0.5 text-left text-xs leading-tight transition-colors",
         tipoCor[tipo] ?? tipoCor.DESPESA,
-        lancamento.status === "PENDENTE" &&
-          "border-dashed bg-transparent",
+        lancamento.status === "PENDENTE" && "border-dashed bg-transparent",
         atrasado && "ring-2 ring-amber-400"
       )}
     >

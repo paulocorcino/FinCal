@@ -48,6 +48,7 @@ export interface LancamentoFormLancamento {
 
 interface LancamentoFormProps {
   lancamento?: LancamentoFormLancamento;
+  defaultData?: string;
   contas: { id: string; nome: string }[];
   categorias: { id: string; nome: string; tipo: string }[];
   open?: boolean;
@@ -58,6 +59,7 @@ interface LancamentoFormProps {
 
 export function LancamentoForm({
   lancamento,
+  defaultData,
   contas,
   categorias,
   open,
@@ -71,7 +73,9 @@ export function LancamentoForm({
   const [pending, startTransition] = useTransition();
   const [tipo, setTipo] = useState<string>(lancamento?.tipo ?? "DESPESA");
   const [cents, setCents] = useState<number>(lancamento?.valor ?? 0);
-  const [data, setData] = useState<string | null>(lancamento?.data ?? null);
+  const [data, setData] = useState<string | null>(
+    lancamento?.data ?? defaultData ?? null
+  );
   const [status, setStatus] = useState<string>(lancamento?.status ?? "PENDENTE");
   const [internalOpen, setInternalOpen] = useState(false);
   const isControlled = open !== undefined;
@@ -91,7 +95,7 @@ export function LancamentoForm({
     setError(undefined);
     setTipo(lancamento?.tipo ?? "DESPESA");
     setCents(lancamento?.valor ?? 0);
-    setData(lancamento?.data ?? null);
+    setData(lancamento?.data ?? defaultData ?? null);
     setStatus(lancamento?.status ?? "PENDENTE");
   }
 
