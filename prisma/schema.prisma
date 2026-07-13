@@ -17,6 +17,21 @@ model User {
   accounts      Account[]
   sessions      Session[]
   categorias    Categoria[]
+  contas        Conta[]
+}
+
+model Conta {
+  id           String   @id @default(cuid())
+  userId       String
+  nome         String
+  papel        String
+  saldoInicial Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model Categoria {
