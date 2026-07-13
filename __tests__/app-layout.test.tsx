@@ -3,6 +3,8 @@ import { render } from "@testing-library/react";
 
 const mockAuth = vi.fn();
 const mockRedirect = vi.fn();
+const mockListarContas = vi.fn();
+const mockListarCategorias = vi.fn();
 
 vi.mock("@/auth", () => ({
   auth: () => mockAuth(),
@@ -21,6 +23,14 @@ vi.mock("@/components/app-shell", () => ({
   ),
 }));
 
+vi.mock("@/lib/conta-actions", () => ({
+  listarContas: () => mockListarContas(),
+}));
+
+vi.mock("@/lib/categoria-actions", () => ({
+  listarCategorias: () => mockListarCategorias(),
+}));
+
 import AppLayout from "@/app/(app)/layout";
 
 describe("AppLayout", () => {
@@ -35,7 +45,9 @@ describe("AppLayout", () => {
   });
 
   it("renders AppShell when session.user exists", async () => {
-    mockAuth.mockResolvedValueOnce({ user: { email: "x@y.z" } });
+    mockAuth.mockResolvedValueOnce({ user: { id: "u1", email: "x@y.z" } });
+    mockListarContas.mockResolvedValueOnce([]);
+    mockListarCategorias.mockResolvedValueOnce([]);
     mockRedirect.mockClear();
 
     const Comp = await AppLayout({ children: <p>page</p> });
