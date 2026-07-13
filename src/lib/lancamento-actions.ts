@@ -10,6 +10,7 @@ import {
   type TipoLancamento,
 } from "@/lib/lancamento";
 import { hojeAmericaSaoPaulo, isDataValida } from "@/lib/data";
+import { inicioFimMesISO } from "@/lib/agenda";
 
 export type LancamentoRow = {
   id: string;
@@ -49,6 +50,22 @@ export async function listarLancamentos(): Promise<LancamentoRow[]> {
   const userId = await requireUserId();
   return prisma.lancamento.findMany({
     where: { userId },
+    orderBy: { data: "asc" },
+  });
+}
+
+export async function listarLancamentosDaAgenda(opts: {
+  mesAno: string;
+  contaId?: string;
+}): Promise<LancamentoRow[]> {
+  const userId = await requireUserId();
+  const { inicio, fim } = inicioFimMesISO(opts.mesAno);
+  return prisma.lancamento.findMany({
+    where: {
+      userId,
+      data: { gte: inicio, lte: fim },
+      ...(opts.contaId ? { contaId: opts.contaId } : {}),
+    },
     orderBy: { data: "asc" },
   });
 }
