@@ -53,3 +53,10 @@ export function statusDefaultPorData(
 ): StatusLancamento {
   return dataStr <= hojeStr ? "EFETIVADO" : "PENDENTE";
 }
+
+export function isAtrasado(
+  l: { status: string; data: string },
+  hojeStr: string
+): boolean {
+  return l.status === "PENDENTE" && l.data < hojeStr;
+}
