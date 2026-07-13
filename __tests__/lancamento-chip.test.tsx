@@ -39,7 +39,7 @@ describe("LancamentoChip", () => {
     expect(chip).toHaveAttribute("data-tipo", "DESPESA");
     expect(chip).toHaveAttribute("data-status", "PENDENTE");
     expect(chip).toHaveAttribute("data-atrasado", "false");
-    expect(chip.textContent ?? "").match(/^\u2212/);
+    expect(chip.textContent ?? "").toMatch(/^\u2212/);
   });
 
   it("DESPESA PENDENTE atrasado: data-atrasado true, data-status continua PENDENTE, ring-amber-400", () => {
@@ -75,7 +75,7 @@ describe("LancamentoChip", () => {
     );
     const chip = screen.getByRole("button");
     expect(chip).toHaveAttribute("data-tipo", "TRANSFERENCIA");
-    expect(chip.textContent ?? "").not.match(/^[+\u2212]/);
+    expect(chip.textContent ?? "").not.toMatch(/^[+\u2212]/);
   });
 
   it("clique chama onClick uma vez", async () => {
