@@ -28,20 +28,16 @@ vi.mock("bcryptjs", () => ({
 }));
 
 vi.mock("@/lib/prisma", () => {
-  const tx = { user: { create: mockUserCreate } };
   return {
     prisma: {
       user: { findUnique: (...args: unknown[]) => mockUserFindUnique(...args) },
-      $transaction: (cb: (t: typeof tx) => Promise<unknown>) =>
+      $transaction: (cb: (tx: unknown) => Promise<unknown>) =>
         mockTransaction(cb),
-      __tx: tx,
     },
   };
 });
 
 import { login, register, logout } from "@/lib/auth-actions";
-
-const txFixture = { user: { create: mockUserCreate } };
 
 describe("auth-actions", () => {
   beforeEach(() => {
@@ -52,7 +48,8 @@ describe("auth-actions", () => {
     mockUserFindUnique.mockClear();
     mockTransaction.mockClear();
     mockTransaction.mockImplementation(
-      async (cb: (t: typeof txFixture) => Promise<unknown>) => cb(txFixture)
+      async (cb: (tx: unknown) => Promise<unknown>) =>
+        cb({ user: { create: mockUserCreate } })
     );
   });
 
@@ -94,6 +91,20 @@ describe("auth-actions", () => {
     expect(result).toEqual({ error: "E-mail já cadastrado." });
     expect(mockSignIn).not.toHaveBeenCalled();
     expect(mockUserCreate).not.toHaveBeenCalled();
+  });
+
+  it("register rejects short password before any DB call or hash", async () => {
+    const fd = new FormData();
+    fd.set("email", "novo@x.com");
+    fd.set("password", "short");
+
+    const result = await register(undefined, fd);
+
+    expect(result).toEqual({ error: "A senha deve ter ao menos 8 caracteres." });
+    expect(mockHash).not.toHaveBeenCalled();
+    expect(mockUserFindUnique).not.toHaveBeenCalled();
+    expect(mockUserCreate).not.toHaveBeenCalled();
+    expect(mockSignIn).not.toHaveBeenCalled();
   });
 
   it("logout signs out redirecting to /login", async () => {

@@ -68,8 +68,7 @@ describe("authorize (Credentials provider)", () => {
     expect(mockBcryptCompare).toHaveBeenCalledTimes(1);
     const compareArgs = mockBcryptCompare.mock.calls[0];
     expect(compareArgs[0]).toBe("x");
-    expect(typeof compareArgs[1]).toBe("string");
-    expect(compareArgs[1].length).toBeGreaterThan(0);
+    expect(compareArgs[1]).toMatch(/^\$2[abxy]\$\d+\$/);
   });
 
   it("returns null when user exists but password is wrong", async () => {
