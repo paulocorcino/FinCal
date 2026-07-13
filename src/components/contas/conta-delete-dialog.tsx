@@ -1,8 +1,8 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { excluirConta, type ContaActionState } from "@/lib/conta-actions";
+import { excluirConta } from "@/lib/conta-actions";
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -25,27 +25,23 @@ export function ContaDeleteDialog({
   onDone,
 }: ContaDeleteDialogProps) {
   const router = useRouter();
-  const [state, action, pending] = useActionState<
-    ContaActionState,
-    FormData
-  >(excluirConta, undefined);
+  const [error, setError] = useState<string | undefined>();
+  const [pending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
-  const submittedRef = useRef(false);
 
-  useEffect(() => {
-    if (pending) {
-      submittedRef.current = true;
-      return;
-    }
-    if (submittedRef.current) {
-      submittedRef.current = false;
-      if (!state?.error) {
-        setOpen(false);
-        onDone?.();
-        router.refresh();
+  async function handleSubmit(formData: FormData) {
+    startTransition(async () => {
+      const result = await excluirConta(undefined, formData);
+      if (result?.error) {
+        setError(result.error);
+        return;
       }
-    }
-  }, [pending, state, onDone, router]);
+      setError(undefined);
+      setOpen(false);
+      onDone?.();
+      router.refresh();
+    });
+  }
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
@@ -55,15 +51,15 @@ export function ContaDeleteDialog({
       <AlertDialogContent>
         <AlertDialogTitle>Excluir Conta</AlertDialogTitle>
         <AlertDialogDescription>
-          Tem certeza que deseja excluir «{conta.nome}»? Esta ação não pode
-          ser desfeita.
+          Tem certeza que deseja excluir «{conta.nome}»? Esta ação não pode ser
+          desfeita.
         </AlertDialogDescription>
-        {state?.error && (
+        {error && (
           <p role="alert" className="text-sm text-destructive">
-            {state.error}
+            {error}
           </p>
         )}
-        <form action={action} className="mt-2 flex justify-end gap-2">
+        <form action={handleSubmit} className="mt-2 flex justify-end gap-2">
           <input type="hidden" name="id" value={conta.id} />
           <AlertDialogCancel>Cancelar</AlertDialogCancel>
           <AlertDialogAction disabled={pending}>

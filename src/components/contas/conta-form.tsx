@@ -1,13 +1,13 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   criarConta,
   editarConta,
   type ContaActionState,
 } from "@/lib/conta-actions";
-import { PAPEIS, formatarPapelLabel, type Papel } from "@/lib/conta";
+import { PAPEIS, formatarPapelLabel } from "@/lib/conta";
 import { cn } from "@/lib/utils";
 import {
   Dialog,
@@ -49,35 +49,38 @@ export function ContaForm({
 }: ContaFormProps) {
   const router = useRouter();
   const isEdit = !!conta;
-  const [state, action, pending] = useActionState<
-    ContaActionState,
-    FormData
-  >(isEdit ? editarConta : criarConta, undefined);
+  const [error, setError] = useState<string | undefined>();
+  const [pending, startTransition] = useTransition();
   const [cents, setCents] = useState<number>(conta?.saldoInicial ?? 0);
   const [internalOpen, setInternalOpen] = useState(false);
   const isControlled = open !== undefined;
   const openValue = isControlled ? (open as boolean) : internalOpen;
-  const submittedRef = useRef(false);
 
-  useEffect(() => {
-    if (pending) {
-      submittedRef.current = true;
-      return;
-    }
-    if (submittedRef.current) {
-      submittedRef.current = false;
-      if (!state?.error) {
-        if (!isControlled) setInternalOpen(false);
-        onOpenChange?.(false);
-        onDone?.();
-        router.refresh();
-      }
-    }
-  }, [pending, state, isControlled, onOpenChange, onDone, router]);
+  function close() {
+    if (!isControlled) setInternalOpen(false);
+    onOpenChange?.(false);
+  }
 
   function handleOpenChange(next: boolean) {
     if (!isControlled) setInternalOpen(next);
     onOpenChange?.(next);
+  }
+
+  async function handleSubmit(formData: FormData) {
+    startTransition(async () => {
+      const result: ContaActionState = await (isEdit ? editarConta : criarConta)(
+        undefined,
+        formData
+      );
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
+      setError(undefined);
+      close();
+      onDone?.();
+      router.refresh();
+    });
   }
 
   return (
@@ -87,10 +90,10 @@ export function ContaForm({
         <DialogHeader>
           <DialogTitle>{isEdit ? "Editar Conta" : "Nova Conta"}</DialogTitle>
         </DialogHeader>
-        <form action={action} className="flex flex-col gap-4">
-          {state?.error && (
+        <form action={handleSubmit} className="flex flex-col gap-4">
+          {error && (
             <p role="alert" className="text-sm text-destructive">
-              {state.error}
+              {error}
             </p>
           )}
           {isEdit && <input type="hidden" name="id" value={conta?.id} />}
