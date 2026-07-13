@@ -19,9 +19,9 @@ async function main() {
     },
   });
 
+  await prisma.categoria.deleteMany({ where: { userId: demoUser.id } });
   await prisma.categoria.createMany({
     data: CATEGORIAS_PADRAO.map((c) => ({ userId: demoUser.id, ...c })),
-    skipDuplicates: true,
   });
 
   console.log(`Seed concluído: demo user ${email} (senha: ${password})`);
