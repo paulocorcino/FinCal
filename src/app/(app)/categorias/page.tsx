@@ -1,12 +1,7 @@
-import { EmptyState } from "@/components/empty-state";
-import { Tags } from "lucide-react";
+import { listarCategorias } from "@/lib/categoria-actions";
+import { CategoriasScreen } from "@/components/categorias/categorias-screen";
 
-export default function CategoriasPage() {
-  return (
-    <EmptyState
-      icon={<Tags className="size-12" />}
-      description="Suas categorias aparecerão aqui."
-      action={{ label: "Nova Categoria" }}
-    />
-  );
+export default async function CategoriasPage() {
+  const categorias = await listarCategorias();
+  return <CategoriasScreen categorias={categorias} />;
 }
