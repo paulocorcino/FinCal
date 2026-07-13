@@ -122,6 +122,13 @@ export async function excluirConta(
     return { error: "Conta inválida." };
   }
 
+  const vinculos = await prisma.lancamento.count({
+    where: { contaId: id, userId },
+  });
+  if (vinculos > 0) {
+    return { error: "Conta possui Lançamentos vinculados." };
+  }
+
   const result = await prisma.conta.deleteMany({ where: { id, userId } });
 
   if (result.count === 0) {

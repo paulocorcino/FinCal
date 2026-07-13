@@ -146,6 +146,13 @@ export async function excluirCategoria(
     return { error: "Categoria inválida." };
   }
 
+  const vinculos = await prisma.lancamento.count({
+    where: { categoriaId: id, userId },
+  });
+  if (vinculos > 0) {
+    return { error: "Categoria possui Lançamentos vinculados." };
+  }
+
   const result = await prisma.categoria.deleteMany({ where: { id, userId } });
 
   if (result.count === 0) {

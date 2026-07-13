@@ -5,11 +5,13 @@ const {
   mockCreate,
   mockUpdateMany,
   mockDeleteMany,
+  mockLancamentoCount,
 } = vi.hoisted(() => ({
   mockFindMany: vi.fn(),
   mockCreate: vi.fn(),
   mockUpdateMany: vi.fn(),
   mockDeleteMany: vi.fn(),
+  mockLancamentoCount: vi.fn(),
 }));
 
 vi.mock("@/auth", () => ({
@@ -23,6 +25,9 @@ vi.mock("@/lib/prisma", () => ({
       create: (...args: unknown[]) => mockCreate(...args),
       updateMany: (...args: unknown[]) => mockUpdateMany(...args),
       deleteMany: (...args: unknown[]) => mockDeleteMany(...args),
+    },
+    lancamento: {
+      count: (...args: unknown[]) => mockLancamentoCount(...args),
     },
   },
 }));
@@ -40,6 +45,8 @@ describe("conta-actions", () => {
     mockCreate.mockReset();
     mockUpdateMany.mockReset();
     mockDeleteMany.mockReset();
+    mockLancamentoCount.mockReset();
+    mockLancamentoCount.mockResolvedValue(0);
   });
 
   it("listarContas consulta por userId e deriva saldoAtual === saldoInicial", async () => {
@@ -142,18 +149,23 @@ describe("conta-actions", () => {
   });
 
   it("excluirConta própria: deleteMany({ where: { id, userId } }) count===1", async () => {
+    mockLancamentoCount.mockResolvedValueOnce(0);
     mockDeleteMany.mockResolvedValueOnce({ count: 1 });
     const fd = new FormData();
     fd.set("id", "c1");
 
     await excluirConta(undefined, fd);
 
+    expect(mockLancamentoCount).toHaveBeenCalledWith({
+      where: { contaId: "c1", userId: "u1" },
+    });
     expect(mockDeleteMany).toHaveBeenCalledWith({
       where: { id: "c1", userId: "u1" },
     });
   });
 
   it("excluirConta alheia: count===0 → error", async () => {
+    mockLancamentoCount.mockResolvedValueOnce(0);
     mockDeleteMany.mockResolvedValueOnce({ count: 0 });
     const fd = new FormData();
     fd.set("id", "c1");
@@ -161,5 +173,18 @@ describe("conta-actions", () => {
     const result = await excluirConta(undefined, fd);
 
     expect(result).toEqual({ error: "Conta não encontrada." });
+  });
+
+  it("excluirConta com Lançamentos vinculados: pre-check retorna erro amigável", async () => {
+    mockLancamentoCount.mockResolvedValueOnce(1);
+    const fd = new FormData();
+    fd.set("id", "c1");
+
+    const result = await excluirConta(undefined, fd);
+
+    expect(result).toEqual({
+      error: "Conta possui Lançamentos vinculados.",
+    });
+    expect(mockDeleteMany).not.toHaveBeenCalled();
   });
 });

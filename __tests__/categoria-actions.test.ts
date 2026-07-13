@@ -5,11 +5,13 @@ const {
   mockCreate,
   mockUpdateMany,
   mockDeleteMany,
+  mockLancamentoCount,
 } = vi.hoisted(() => ({
   mockFindMany: vi.fn(),
   mockCreate: vi.fn(),
   mockUpdateMany: vi.fn(),
   mockDeleteMany: vi.fn(),
+  mockLancamentoCount: vi.fn(),
 }));
 
 vi.mock("@/auth", () => ({
@@ -23,6 +25,9 @@ vi.mock("@/lib/prisma", () => ({
       create: (...args: unknown[]) => mockCreate(...args),
       updateMany: (...args: unknown[]) => mockUpdateMany(...args),
       deleteMany: (...args: unknown[]) => mockDeleteMany(...args),
+    },
+    lancamento: {
+      count: (...args: unknown[]) => mockLancamentoCount(...args),
     },
   },
 }));
@@ -40,6 +45,8 @@ describe("categoria-actions", () => {
     mockCreate.mockReset();
     mockUpdateMany.mockReset();
     mockDeleteMany.mockReset();
+    mockLancamentoCount.mockReset();
+    mockLancamentoCount.mockResolvedValue(0);
   });
 
   it("listarCategorias consulta por userId ordenado por createdAt asc", async () => {
@@ -177,18 +184,23 @@ describe("categoria-actions", () => {
   });
 
   it("excluirCategoria própria: deleteMany({ where: { id, userId } })", async () => {
+    mockLancamentoCount.mockResolvedValueOnce(0);
     mockDeleteMany.mockResolvedValueOnce({ count: 1 });
     const fd = new FormData();
     fd.set("id", "c1");
 
     await excluirCategoria(undefined, fd);
 
+    expect(mockLancamentoCount).toHaveBeenCalledWith({
+      where: { categoriaId: "c1", userId: "u1" },
+    });
     expect(mockDeleteMany).toHaveBeenCalledWith({
       where: { id: "c1", userId: "u1" },
     });
   });
 
   it("excluirCategoria alheia: count===0 → não encontrada", async () => {
+    mockLancamentoCount.mockResolvedValueOnce(0);
     mockDeleteMany.mockResolvedValueOnce({ count: 0 });
     const fd = new FormData();
     fd.set("id", "c1");
@@ -196,5 +208,18 @@ describe("categoria-actions", () => {
     const result = await excluirCategoria(undefined, fd);
 
     expect(result).toEqual({ error: "Categoria não encontrada." });
+  });
+
+  it("excluirCategoria com Lançamentos vinculados: pre-check retorna erro amigável", async () => {
+    mockLancamentoCount.mockResolvedValueOnce(1);
+    const fd = new FormData();
+    fd.set("id", "c1");
+
+    const result = await excluirCategoria(undefined, fd);
+
+    expect(result).toEqual({
+      error: "Categoria possui Lançamentos vinculados.",
+    });
+    expect(mockDeleteMany).not.toHaveBeenCalled();
   });
 });
