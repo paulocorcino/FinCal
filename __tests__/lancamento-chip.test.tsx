@@ -66,7 +66,7 @@ describe("LancamentoChip", () => {
     expect(chip).toHaveAttribute("data-atrasado", "false");
   });
 
-  it("TRANSFERENCIA: data-tipo TRANSFERENCIA, sem sinal", () => {
+  it("TRANSFERENCIA: data-tipo TRANSFERENCIA, com glifo de transferência (AA)", () => {
     render(
       <LancamentoChip
         lancamento={row({ tipo: "DESPESA", transferenciaId: "t1" })}
@@ -75,7 +75,7 @@ describe("LancamentoChip", () => {
     );
     const chip = screen.getByRole("button");
     expect(chip).toHaveAttribute("data-tipo", "TRANSFERENCIA");
-    expect(chip.textContent ?? "").not.toMatch(/^[+\u2212]/);
+    expect(chip.textContent ?? "").toMatch(/^\u21c4/);
   });
 
   it("clique chama onClick uma vez", async () => {

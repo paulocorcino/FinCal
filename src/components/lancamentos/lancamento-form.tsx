@@ -124,9 +124,9 @@ export function LancamentoForm({
       }
       setError(undefined);
       toast.success(isEdit ? "Lançamento atualizado." : "Lançamento criado.");
+      router.refresh();
       close();
       onDone?.();
-      router.refresh();
     });
   }
 

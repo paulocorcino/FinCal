@@ -35,7 +35,14 @@ export function LancamentoChip({
     ? "TRANSFERENCIA"
     : (lancamento.tipo as string);
   const atrasado = isAtrasado(lancamento, hoje);
-  const sinal = tipo === "RECEITA" ? "+" : tipo === "DESPESA" ? "\u2212" : "";
+  const sinal =
+    tipo === "RECEITA"
+      ? "+"
+      : tipo === "DESPESA"
+        ? "\u2212"
+        : tipo === "TRANSFERENCIA"
+          ? "\u21c4"
+          : "";
 
   return (
     <button
