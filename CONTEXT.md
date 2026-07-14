@@ -92,3 +92,5 @@ Métrica-título do Diagnóstico: `sobra ÷ Renda Líquida`. Piso de referência
 - Mover dinheiro entre contas próprias vs gastar/receber — resolvido: é **Transferência** (neutra), nunca um par Despesa+Receita.
 - **Renda Líquida** (declarada, a régua) vs **Receitas** (realizadas) — resolvido: independentes por design; a divergência é sinal, não bug.
 - "pago" vs "recebido" — resolvido: mesmo Status `EFETIVADO`, a diferença é o **Tipo**.
+
+#1
