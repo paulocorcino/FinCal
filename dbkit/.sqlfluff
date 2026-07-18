@@ -1,0 +1,9 @@
+[sqlfluff]
+dialect = sqlite
+templater = raw
+large_file_skip_byte_limit = 0
+# Add exclusions only with a reason, linking an ADR when there is one.
+exclude_rules =
+
+[sqlfluff:indentation]
+tab_space_size = 4
