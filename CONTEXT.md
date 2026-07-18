@@ -1,4 +1,4 @@
-# FinCal AI
+# FinCal AI -= teste
 
 Agenda financeira inteligente: o usuário registra receitas e despesas (pontuais ou recorrentes), visualiza-as num calendário mensal, e o foco do produto é **previsibilidade** — enxergar o impacto de compromissos futuros no saldo. Inclui um assistente em linguagem natural que executa ações no sistema.
 
