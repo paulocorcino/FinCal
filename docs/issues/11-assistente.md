@@ -1,17 +1,29 @@
-# Assistente: chat que age no sistema com confirmação
+# Assistente: chat que age no sistema com confirmação humana
 
 ## What to build
 
-O **Assistente** conversacional — **painel lateral global (slide-over à direita)** aberto por um botão persistente, disponível sobre qualquer tela (não é destino de nav de topo). Traduz mensagens em chamadas de **tool** (function calling) que são **wrappers finos sobre a mesma camada de serviço da UI** (ADR-0004). Tools rodam sempre no escopo do **`userId` da sessão**, nunca de argumento do modelo. **Leituras** ("quanto tenho hoje?") respondem direto no chat, com números vindos do **motor** (nunca do modelo). **Escritas nunca executam direto**: o Assistente renderiza um **cartão de confirmação inline** (resumo estruturado — Tipo, valor, Conta, Categoria, data, Status) com **Confirmar / Cancelar**; só Confirmar chama `criarLancamento` etc. Quando faltam dados obrigatórios, **pergunta no chat** — nunca inventa Conta ou valor. Após confirmar, Agenda/Dashboard atualizam atrás do painel (re-busca, sem UI otimista). OpenAI **mockada** nos testes.
+O **Assistente** como painel lateral global (slide-over à direita), aberto por um botão persistente na
+topbar sobre qualquer tela — não é destino de nav de topo. Traduz mensagens em chamadas de **tool**
+(function calling) sobre a **mesma camada de serviço** usada pela UI (`criarLancamento` etc.). Tools
+rodam sempre no escopo do `userId` da **sessão**, nunca de argumento gerado pelo modelo (ADR-0004).
+**Leituras** ("quanto tenho hoje?") respondem direto no chat, sem cartão. **Escritas** ("lance R$ 200
+de mercado") **nunca executam direto**: renderizam um **cartão de confirmação inline** (Tipo, valor,
+Conta, Categoria, data, Status) com Confirmar/Cancelar — só Confirmar chama o serviço; Cancelar
+descarta. Quando faltam dados obrigatórios, o Assistente **pergunta** no chat, nunca inventa Conta ou
+valor. Após confirmar, Agenda/Dashboard atualizam **atrás do painel** (revalidação do servidor, nunca
+recálculo client-side).
 
 ## Acceptance criteria
 
-- [ ] Slide-over à direita, aberto por botão persistente, sobre qualquer tela; não é destino de nav
-- [ ] Leituras respondem no chat com números do **motor**; escritas geram **cartão de confirmação inline** (Confirmar/Cancelar)
-- [ ] Só Confirmar chama a camada de serviço; Cancelar descarta; tools sempre no `userId` da sessão (nunca do modelo)
-- [ ] Dados obrigatórios faltando → o Assistente **pergunta**, nunca inventa; views atrás do painel re-buscam após confirmar
-- [ ] Testes com **OpenAI mockada**: a tool certa é chamada com os argumentos certos; escrita exige confirmação
-- [ ] Evidência: teste do fluxo leitura + escrita-com-confirmação (mock) + screenshot do cartão
+- [ ] Painel slide-over abre/fecha por botão persistente na topbar, sobre qualquer tela
+- [ ] Pergunta de leitura retorna resposta direta no chat (sem cartão), usando os mesmos motores/serviços da UI
+- [ ] Comando de escrita gera cartão de confirmação inline com resumo estruturado; nada é gravado antes de Confirmar
+- [ ] Cancelar descarta a proposta sem chamar o serviço
+- [ ] Dado obrigatório faltando → Assistente pergunta no chat, nunca preenche Conta/valor arbitrário
+- [ ] Tool roda com `userId` da sessão; tentativa de passar `userId` diferente via prompt é ignorada
+- [ ] Após confirmar uma escrita, Agenda/Dashboard revalidam do servidor (sem recálculo de saldo no cliente)
+- [ ] OpenAI mockada nos testes
+- [ ] Evidência: teste de que uma escrita nunca persiste sem confirmação + teste de isolamento de `userId` + screenshot do cartão de confirmação
 
 ## Blocked by
 

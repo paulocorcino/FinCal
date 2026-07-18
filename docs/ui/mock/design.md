@@ -114,83 +114,170 @@ spacing:
   desktop-max-width: 1440px
 ---
 
-## Brand & Style
+> Companion to [`CONTEXT.md`](../../CONTEXT.md) (domain), the ADRs in [`docs/adr/`](../../adr/) and
+> [`dbkit/model/database.md`](../../../dbkit/model/database.md) (schema). Every agent building **any
+> screen** follows this document, so independently-built slices form **one coherent app** — same
+> shell, same navigation, same interaction patterns — not five bolted-together frontends.
+> Rules here are implementation/presentation; domain terms still come from `CONTEXT.md`.
 
-The design system is engineered to project **predictability, intelligence, and institutional trust**. It targets professionals and high-intent users who require clarity in financial forecasting. 
+## Product & audience
 
-The aesthetic follows a **Corporate / Modern** style with high-precision execution. It prioritizes data density without sacrificing airiness, using generous whitespace to reduce cognitive load. The UI relies on a systematic approach to information hierarchy, ensuring that the AI-driven insights feel grounded and reliable rather than experimental. Visual metaphors are rooted in stability and growth, utilizing a clean, structural grid that mirrors the organized nature of financial ledgers.
+Agenda financeira inteligente focada em **previsibilidade**: usuário registra Lançamentos (pontuais
+ou recorrentes), navega-os num calendário mensal, e a UI existe para deixar óbvio o impacto de
+compromissos futuros no Saldo. Público: usuário individual (não há multi-tenant, equipe ou papéis —
+isolamento é por `userId`, ADR-0004). Uma sessão típica: abrir o Dashboard, checar alertas, lançar ou
+confirmar um Lançamento, checar a Agenda do mês.
 
-## Colors
+## Delivery target
 
-The palette is anchored by **Navy (#1E293B)**, representing the "Foundational Trust" of the system. This color is used for primary navigation, high-level headers, and core brand moments. 
+**Web app responsivo, desktop-first** (ADR-0005). Viewport primário declarado **≥ `lg` (1024px)**:
+sidebar persistente, grade mensal da Agenda, gráfico de projeção. Abaixo de `lg` a UI **apenas não
+quebra** (sidebar → drawer, Agenda → lista vertical, piso ~360px sem scroll horizontal) — não existe
+IA mobile dedicada. PWA/instalável e offline **fora do MVP**.
 
-**Functional Accents:**
-- **Growth (Emerald #10B981):** Reserved for positive financial indicators, income, and primary success actions.
-- **Expense (Rose #F43F5E):** Used for outflows, negative balances, and critical warnings.
-- **Neutral (Slate #F8FAFC / #E2E8F0):** These tones form the architectural skeleton, used for subtle backgrounds and structural dividers to ensure the interface feels expansive and clean.
+## Stack & framework
 
-Color should be used functionally to denote "State" rather than decoration. AI-driven components may utilize a subtle gradient blending Navy and Emerald to represent the "Intelligence" layer.
+**Tailwind + shadcn/ui** (primitivos Radix, componentes versionados no repo). Nenhum agente escreve
+componente/CSS do zero quando um equivalente shadcn existe. **Tema claro único — dark mode fora do
+MVP**, apesar de `darkMode: "class"` estar configurado no Tailwind do mock (deixado pronto, não
+ativado). Gráficos: **shadcn Charts sobre Recharts**, lib única — nenhum agente traz Chart.js/Nivo/etc.
 
-## Typography
+## Brand & visual language
 
-This design system utilizes **Geist** for headlines and labels to leverage its technical, precise character, while **Inter** is used for body text to ensure maximum readability in data-heavy contexts.
+O sistema projeta **previsibilidade, inteligência e confiança institucional** — estilo
+**corporativo/moderno**, densidade de dados alta sem abrir mão de whitespace generoso. É a mesma
+linguagem que sustenta os "cartões de métrica determinística" do Diagnóstico (ADR-0004: números vêm
+do motor, nunca da IA) — a UI precisa parecer **confiável antes de parecer bonita**.
 
-**Numerical Legibility:** 
-All financial figures, tables, and balance readouts must use **Tabular Figures** (`font-variant-numeric: tabular-nums`). This ensures that decimal points align vertically in lists, which is critical for financial comparison. 
+**Cores** — ancoradas em **Navy** (`primary` #091426 / `primary-container` #1e293b) para navegação e
+momentos de marca. **Verde institucional** (`secondary` #006c49 / `secondary-container` #6cf8bb) para
+crescimento, Receita e ações de sucesso. **Vermelho** (`error` #ba1a1a) para Despesa, saldo negativo e
+estados de perigo — um único vermelho para os dois, o que muda é o peso visual (badge discreto vs.
+cartão de alerta cheio). `tertiary` (família rosa/vinho #330009–#ff4e69) é reservado para **superfícies
+de alerta crítico** (ex.: cartão "Projeção Negativa" no Dashboard) — mais intenso que `error`, usado
+com parcimônia para não competir com Despesa/perigo no dia a dia. Neutros (`surface-container-*`)
+formam o esqueleto estrutural.
 
-**Scale Strategy:**
-Headlines use tight letter spacing and heavier weights to feel authoritative. Labels for data points and status badges utilize a slightly increased letter spacing and uppercase styling for clarity at small sizes.
+Cor é sempre funcional (estado), nunca decorativa — ver tabela semântica abaixo.
 
-## Layout & Spacing
+**Tipografia** — **Geist** para headlines/labels (caráter técnico e preciso), **Inter** para corpo de
+texto (legibilidade em telas densas de dados). **Todo valor monetário usa tabular-nums** — decimais
+alinham verticalmente em listas, crítico para comparação financeira.
 
-The system employs a **12-column fluid grid** for desktop and a **single-column fluid layout** for mobile. 
+**Forma** — cantos arredondados (nunca 0px — o produto existe para trazer paz financeira, não
+agressividade): botões/inputs `0.5rem`, cards/painéis `1rem`, badges/pills `xl`/`full`.
 
-**Key Layout Rules:**
-- **Rhythm:** A 4px base unit governs all spacing. Vertical stacks of content should use 16px (md) or 32px (lg) increments to maintain a rigorous professional rhythm.
-- **Margins:** Desktop views utilize a 24px outer margin. On mobile, margins reduce to 16px to maximize screen real estate for data tables.
-- **Dashboards:** Use a "Fixed Sidebar / Fluid Content" model. The sidebar remains at a constant 280px width, while the data panels expand to fill the viewport, capped at 1440px for optimal line length and readability.
+**Elevação** — superfícies brancas sobre fundo `surface` claro ("elevação natural"), sombras
+extra-difusas e de baixa opacidade tingidas de Navy quando precisa de profundidade (dropdowns, cards
+em hover).
 
-## Elevation & Depth
+## Semantic color table (única fonte — toda tela puxa daqui)
 
-Depth is used sparingly to denote interactivity and information hierarchy. 
+| Conceito | Encoding |
+|---|---|
+| **Receita** (entrada) | `secondary` (verde); valor com sinal `+` |
+| **Despesa** (saída) | `error` (vermelho); valor com sinal `−` |
+| **Transferência** (neutra) | `surface-container-high` / `on-surface-variant` — nunca verde nem vermelho (não é renda nem gasto) |
+| **Status EFETIVADO** | sólido/preenchido (aconteceu) |
+| **Status PENDENTE** | contorno/esmaecido (previsto) |
+| **Atrasado** (pendente vencido) | acento âmbar/`error` **sobre** o badge pendente — nunca um "quarto status" |
+| **Saldo negativo** (atual ou projeção cruzando zero) | `error`, peso visual mais forte (cartão `tertiary` quando é alerta de destaque) |
 
-**Tonal Layering:** 
-Primary surfaces are white (#FFFFFF) set against a light slate background (#F8FAFC). This creates a "Natural Elevation" without the need for heavy shadows. 
+Badge de Status na Agenda, cor do valor no Dashboard, linha da tabela de Importação — todos derivam
+desta tabela. **Regra dura de acessibilidade:** cor nunca é o único canal — Tipo/Status/atrasado
+sempre pareiam cor + ícone/sinal/texto (`+`/`−`, ícone de atraso).
 
-**Ambient Shadows:**
-When depth is required (e.g., for cards or dropdowns), use extra-diffused, low-opacity shadows. 
-- **Shadow Style:** `0px 4px 20px rgba(30, 41, 59, 0.05)`. 
-- The shadow color is tinted with the Primary Navy to ensure it feels integrated with the UI rather than a generic gray.
+## App shell & navigation
 
-**Interactive States:**
-Buttons and interactive cards should "lift" slightly on hover by increasing the shadow spread and decreasing its opacity, simulating a physical approach.
+- **Sidebar esquerda persistente** (desktop, 280px). No mobile colapsa em drawer via hambúrguer.
+- **Seis destinos de topo, nesta ordem:** Dashboard, Agenda, Contas, Categorias, Importação Assistida,
+  Diagnóstico. Menu por permissão não se aplica (sem RBAC multi-usuário) — todo usuário autenticado vê
+  os seis.
+- **Sem página "Lançamentos" separada.** A **Agenda é o navegador primário** de Lançamentos; Alertas do
+  Dashboard linkam para a Agenda já filtrada (`?status=atrasado`, `?conta=…`, `?proximos=1`), nunca para
+  uma tabela própria. *(O mock em `code.html`/`screen.png` tem um item "Lançamentos" e "Relatórios" na
+  sidebar — descartado, é herança de um template genérico gerado antes deste contrato; não seguir.)*
+- **Menu de usuário no rodapé da sidebar:** logout, Renda Líquida (valor + vigência), N dias do alerta
+  de vencimento próximo (default 7). Não são itens de topo.
+- **Topbar:** título da tela à esquerda; à direita **"＋ Novo Lançamento"** + botão do Assistente. Igual
+  em todas as telas.
 
-## Shapes
+## Assistant shell
 
-The shape language is **Rounded**, strike a balance between friendly modernism and professional structure. 
+- **Painel lateral global (slide-over à direita)**, aberto por botão persistente na topbar — disponível
+  sobre qualquer tela, **não é destino de nav de topo** (o bubble flutuante do mock também não segue —
+  mesmo motivo do item acima).
+- Leituras respondem direto no chat, sem cartão. **Escritas nunca executam direto:** cartão de
+  confirmação inline (Tipo, valor, Conta, Categoria, data, Status) com Confirmar/Cancelar — só Confirmar
+  chama a mesma camada de serviço da UI. Dado faltando → o Assistente pergunta no chat.
 
-- **Base Components:** Buttons and inputs use a `0.5rem` (8px) radius. 
-- **Data Containers:** Cards and large panels use `rounded-lg` (16px) to frame content softly. 
-- **Feedback Elements:** Status badges and "Pill" buttons use `rounded-xl` or full round for a distinct visual separation from the structural grid.
+## Forms & CRUD
 
-Avoid sharp 0px corners, as they can feel overly aggressive for a tool intended to provide financial peace of mind.
+Superfície por peso da entidade (`dbkit/model/database.md`):
 
-## Components
+- **Lançamento** — entidade mais pesada e mais frequente → **modal único compartilhado** (shadcn
+  `Dialog`), aberto do botão global "＋ Novo Lançamento" e da Agenda (clique no dia pré-preenche a
+  data; clique num chip abre em edição). Default de Status por data: passado → `EFETIVADO`,
+  hoje/futuro → `PENDENTE` (editável). Zero Contas cadastradas → não mostra formulário, mostra "Crie
+  uma Conta primeiro" com atalho (Conta é pré-requisito duro, CAT-05/relations).
+- **Conta** e **Categoria** — poucos campos (`conta`: nome, papel, Saldo Inicial · `categoria`: nome,
+  tipo, cor/ícone cosmético) → mesmo padrão **modal**, sem necessidade de superfície dedicada.
+  **Asimetria create/edit:** `categoria.tipo` é **imutável após criar** (é metade da chave natural
+  `UNIQUE(userId, tipo, nome)`, CAT-04 — mudar o tipo de uma Categoria em uso reclassificaria
+  Lançamentos existentes silenciosamente). `conta.papel` é editável (não é chave, e recategorizar uma
+  Conta — ex. de `CORRENTE` para `RESERVA` — é uma correção legítima).
+- **Exclusão** (Conta, Categoria, Lançamento) — sempre `AlertDialog` de confirmação, nunca delete de um
+  clique. Excluir Conta/Categoria com Lançamentos vinculados falha com erro do serviço (`ON DELETE
+  RESTRICT`, CAT-05) — a UI mostra o erro, não tenta prevenir client-side (o motor é a fonte da
+  verdade).
+- **Transferência** — ação separada ("Nova Transferência": origem, destino, valor, data), nunca dentro
+  do modal de Lançamento comum. Produz o par vinculado (`transferenciaId`), renderizado em cor neutra.
+  Clicar numa perna na Agenda **abre em edição** o mesmo formulário "Nova Transferência" pré-preenchido
+  — qualquer alteração reescreve as duas pernas atomicamente (caminho único de escrita, TRA-02).
+  Exclusão sempre remove o par, nunca uma perna isolada.
+- **Criação de Lançamento recorrente:** toggle **"Repetir"** dentro do próprio modal de Lançamento
+  (desligado por padrão). Ligar revela inline frequência (`MENSAL`/`SEMANAL`), dia e fim opcional; o
+  submit cria a `recorrencia` em vez de um Lançamento avulso. Mantém o modal único — nenhum fluxo
+  separado, nenhum segundo lugar para manter os seletores de Conta/Categoria.
+- **Escopo de recorrência (crítico):** editar/excluir um Lançamento com `recorrenciaId` sempre dispara
+  diálogo de escopo — "Só esta" vs "Esta e as futuras" — antes de aplicar. Nunca edição retroativa.
+  Lançamento sem `recorrenciaId` não mostra o diálogo.
+- **Renda Líquida** — append-only por design (REN-01): o menu de usuário mostra o valor vigente atual +
+  "vigente desde"; editar **sempre cria uma nova vigência** (nunca sobrescreve uma linha passada — não
+  há UI de editar/apagar histórico).
+- **Primitivos compartilhados:** `<CurrencyInput>` (máscara `R$ 1.234,56`, converte para inteiro em
+  centavos na borda form→serviço, nunca `float`) e `<DateField>` (shadcn date picker, `dd/MM/yyyy`,
+  date-only, `America/Sao_Paulo`, proibido `new Date()` ingênuo).
+- **Dirty-form guard:** fechar um modal com alterações não salvas (X, backdrop, Esc) pede confirmação
+  (`AlertDialog` "Descartar alterações?") — mesmo componente de confirmação usado em deletes, não um
+  padrão novo.
 
-**Buttons:**
-- **Primary ('Novo Lançamento'):** Solid Navy background with white text. High contrast for primary funnel entry points.
-- **Action ('Assistente'):** Emerald background to signify growth and intelligence-driven interaction.
-- **Secondary:** Transparent with a Slate #E2E8F0 border.
+## Feedback & states
 
-**Status Badges:**
-- **PENDENTE:** Soft Amber background with dark slate text. The lower contrast indicates a "waiting" state.
-- **EFETIVADO:** Solid Emerald or Primary Navy background with white text, signaling completion and permanence.
+- **Loading:** skeletons, nunca spinner de tela cheia.
+- **Empty states:** componente `EmptyState` padronizado e obrigatório em toda tela — ícone + uma linha
+  de explicação + um CTA primário. Mesma anatomia em Agenda, Contas, Categorias, Dashboard, Importação.
+  Dashboard vazio (zero Contas) é um caso do mesmo componente, CTA "Criar sua primeira Conta".
+- **Mutações:** pessimista — nunca UI otimista que recalcule saldo no cliente (corolário do ADR-0002:
+  o motor é a única fonte numérica). Toda escrita revalida/re-busca as views derivadas do servidor.
+- **Toast** para resultado de toda mutação (sucesso/erro com mensagem do serviço). **Inline** reservado
+  para erros de validação de formulário (ex.: login/registro).
 
-**Input Fields:**
-- Borders must be #E2E8F0. On focus, the border transitions to Primary Navy with a 2px outer glow of Emerald (at 10% opacity) to signify the "active intelligence" of the field.
+## Identity & access
 
-**Cards:**
-- White background, 16px rounded corners, and a subtle 1px border (#E2E8F0). The card header should have a light slate background-bottom-border to separate summary stats from detail rows.
+Auth simples (Auth.js, e-mail + senha): card centralizado, form shadcn, alternância login↔registro,
+erros inline, sem sidebar (usuário anônimo). Sem papéis/RBAC — todo usuário autenticado vê os mesmos
+seis destinos, isolado por `userId`. Recuperação de senha por e-mail fica **fora do MVP** (sem infra de
+envio de e-mail no projeto) — mesmo racional do ADR de escopo.
 
-**Graphs & Charts:**
-- Use the **Growth Emerald** for actual income and **Primary Navy** for projected lines. For expense categories, use the **Rose** palette. All chart axes and labels must use the `label-sm` typography role in Slate #64748B.
+## Responsiveness
+
+Breakpoints Tailwind default; primário **≥ `lg` (1024px)** com sidebar expandida, **< `lg`** colapsa em
+drawer, piso **~360px sem scroll horizontal** — conjunto único, ninguém inventa breakpoint (ADR-0005).
+Agenda: grade 7 colunas no desktop → lista vertical de dias no mobile.
+
+## Out of scope (MVP)
+
+Dark mode, i18n/multi-locale, IA mobile dedicada, push/e-mail (Alerta é sempre in-app derivado),
+PWA/offline, UI otimista com recálculo de saldo no cliente, recuperação de senha por e-mail, RBAC
+multi-usuário.

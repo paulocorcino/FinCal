@@ -1,7 +1,8 @@
 # PRD — FinCal AI (MVP)
 
 > Documento local (fonte da verdade), companheiro do [`CONTEXT.md`](../../CONTEXT.md) (domínio),
-> do [`docs/ui-ux.md`](../ui-ux.md) (contrato de UI) e dos [`docs/adr/`](../adr/) (decisões).
+> do [`docs/ui/mock/design.md`](../ui/mock/design.md) (contrato de UI/UX e design system) e dos
+> [`docs/adr/`](../adr/) (decisões).
 > Este PRD descreve o **produto por inteiro**; as fatias (tracer bullets) que o implementam vivem
 > como `NN-*.md` neste mesmo diretório e são publicadas via `scripts/publish-issues.*`.
 > Vocabulário de domínio (Lançamento, Conta, Papel, Status, Recorrência, Transferência, Saldo Projetado…)
@@ -82,7 +83,7 @@ nunca é fonte de número (ADR-0004).
 37. Como usuário sem Contas, quero um **EmptyState** com CTA "Criar sua primeira Conta" no lugar de um dashboard vazio.
 
 ### Recorrência
-38. Como usuário, quero criar uma **Recorrência** (tipo, valor, categoria, conta, frequência, dia, início, fim opcional), para não repetir lançamentos fixos.
+38. Como usuário, quero criar uma **Recorrência** (tipo, valor, categoria, conta, frequência, dia, início, fim opcional) por um toggle **"Repetir"** dentro do mesmo modal de Lançamento (desligado por padrão), sem um fluxo separado, para não repetir lançamentos fixos.
 39. Como usuário, quero que as ocorrências se **materializem preguiçosamente** ao navegar/projetar, cada uma um Lançamento com `recorrenciaId` (ADR-0003).
 40. Como usuário, quero que editar/excluir uma ocorrência dispare um **diálogo de escopo** — "Só esta" vs "Esta e as futuras", para controlar o alcance.
 41. Como usuário, quero que "Só esta" marque a ocorrência como modificada (imune à regeneração) e "Esta e as futuras" altere a regra sem edição retroativa.
@@ -92,41 +93,43 @@ nunca é fonte de número (ADR-0004).
 43. Como usuário, quero uma ação separada **"Nova Transferência"** (origem, destino, valor, data) que cria o **par vinculado** (`transferenciaId`).
 44. Como usuário, quero que a Transferência seja **neutra** (cinza/azul), nunca contando como Receita nem Despesa, para não distorcer meus totais.
 45. Como usuário, quero que a Transferência nunca seja montada como Despesa+Receita à mão nem dentro do modal de Lançamento comum.
+46. Como usuário, quero **clicar numa perna de Transferência** na Agenda e reabrir o mesmo formulário "Nova Transferência" pré-preenchido em edição, para corrigir valor/data/contas sem apagar e recriar.
+47. Como usuário, quero que **excluir** uma Transferência sempre remova o **par inteiro**, nunca uma perna isolada.
 
 ### Assistente
-46. Como usuário, quero abrir um **painel lateral (slide-over à direita)** por um botão persistente, sobre qualquer tela, para conversar.
-47. Como usuário, quero fazer **perguntas de leitura** ("quanto tenho hoje?") e receber a resposta direto no chat, sem cartão.
-48. Como usuário, quero que **escritas** ("lance R$ 200 de mercado") gerem um **cartão de confirmação inline** (resumo estruturado) com Confirmar/Cancelar.
-49. Como usuário, quero que só **Confirmar** chame a mesma camada de serviço da UI (`criarLancamento` etc.), e Cancelar descarte.
-50. Como usuário, quero que o Assistente **pergunte** quando faltam dados obrigatórios, nunca inventando Conta ou valor.
-51. Como usuário, quero ver a Agenda/Dashboard **atualizarem atrás do painel** após confirmar, para sentir que o Assistente age no sistema.
-52. Como usuário, quero que toda tool rode no escopo do **meu `userId` de sessão**, nunca de argumento do modelo (ADR-0004).
+48. Como usuário, quero abrir um **painel lateral (slide-over à direita)** por um botão persistente, sobre qualquer tela, para conversar.
+49. Como usuário, quero fazer **perguntas de leitura** ("quanto tenho hoje?") e receber a resposta direto no chat, sem cartão.
+50. Como usuário, quero que **escritas** ("lance R$ 200 de mercado") gerem um **cartão de confirmação inline** (resumo estruturado) com Confirmar/Cancelar.
+51. Como usuário, quero que só **Confirmar** chame a mesma camada de serviço da UI (`criarLancamento` etc.), e Cancelar descarte.
+52. Como usuário, quero que o Assistente **pergunte** quando faltam dados obrigatórios, nunca inventando Conta ou valor.
+53. Como usuário, quero ver a Agenda/Dashboard **atualizarem atrás do painel** após confirmar, para sentir que o Assistente age no sistema.
+54. Como usuário, quero que toda tool rode no escopo do **meu `userId` de sessão**, nunca de argumento do modelo (ADR-0004).
 
 ### Importação Assistida
-53. Como usuário, quero **subir um extrato/fatura** (PDF-texto, CSV ou OFX; sem OCR) escolhendo a **Conta de destino obrigatória**, para a IA não adivinhar.
-54. Como usuário, quero que a IA extraia **Lançamentos Candidatos** via structured outputs, para não digitar linha a linha.
-55. Como usuário, quero uma **tabela de revisão** com edição inline (data, valor, Categoria, Tipo, descrição), para corrigir antes de gravar.
-56. Como usuário, quero um **checkbox incluir/excluir** por linha (default incluído), onde excluir é desmarcar, nunca delete destrutivo.
-57. Como usuário, quero que **duplicados** (mesma Conta+data+valor) sejam **sinalizados** (badge âmbar + tooltip) e sigam incluídos, nunca removidos automaticamente.
-58. Como usuário, quero que candidatos entrem como `EFETIVADO` por padrão (são históricos), editável.
-59. Como usuário, quero **"Confirmar N Lançamentos"** em lote, chamando `criarLancamento` por linha marcada, com toast e refresh.
+55. Como usuário, quero **subir um extrato/fatura** (PDF-texto, CSV ou OFX; sem OCR) escolhendo a **Conta de destino obrigatória**, para a IA não adivinhar.
+56. Como usuário, quero que a IA extraia **Lançamentos Candidatos** via structured outputs, para não digitar linha a linha.
+57. Como usuário, quero uma **tabela de revisão** com edição inline (data, valor, Categoria, Tipo, descrição), para corrigir antes de gravar.
+58. Como usuário, quero um **checkbox incluir/excluir** por linha (default incluído), onde excluir é desmarcar, nunca delete destrutivo.
+59. Como usuário, quero que **duplicados** (mesma Conta+data+valor) sejam **sinalizados** (badge âmbar + tooltip) e sigam incluídos, nunca removidos automaticamente.
+60. Como usuário, quero que candidatos entrem como `EFETIVADO` por padrão (são históricos), editável.
+61. Como usuário, quero **"Confirmar N Lançamentos"** em lote, chamando `criarLancamento` por linha marcada, com toast e refresh.
 
 ### Diagnóstico Financeiro (stretch)
-60. Como usuário, quero informar minha **Renda Líquida** com vigência (valor + "vigente desde") no menu de usuário, formando um histórico.
-61. Como usuário sem Renda Líquida informada, quero um **EmptyState** "Informe sua Renda Líquida", nunca uma tela meio-quebrada.
-62. Como usuário, quero **cards de métrica determinística** — Taxa de Poupança, Reserva atual × meta (barra de progresso), sobra — vindos do motor.
-63. Como usuário, quero um **painel de narração da IA** que **referencia** esses números, nunca produzindo números novos.
-64. Como usuário, quero um **disclaimer educacional** fixo e sempre visível, para entender que não é aconselhamento profissional.
-65. Como usuário, quero que a Reserva de Emergência (meta) seja `6 × gasto mensal médio` (média das Despesas EFETIVADAS dos últimos 3 meses), comparada com a **Reserva atual**.
+62. Como usuário, quero informar minha **Renda Líquida** com vigência (valor + "vigente desde") no menu de usuário, formando um histórico.
+63. Como usuário sem Renda Líquida informada, quero um **EmptyState** "Informe sua Renda Líquida", nunca uma tela meio-quebrada.
+64. Como usuário, quero **cards de métrica determinística** — Taxa de Poupança, Reserva atual × meta (barra de progresso), sobra — vindos do motor.
+65. Como usuário, quero um **painel de narração da IA** que **referencia** esses números, nunca produzindo números novos.
+66. Como usuário, quero um **disclaimer educacional** fixo e sempre visível, para entender que não é aconselhamento profissional.
+67. Como usuário, quero que a Reserva de Emergência (meta) seja `6 × gasto mensal médio` (média das Despesas EFETIVADAS dos últimos 3 meses), comparada com a **Reserva atual**.
 
 ### Transversais (todas as telas)
-66. Como usuário, quero uma **sidebar persistente** com seis destinos (Dashboard, Agenda, Contas, Categorias, Importação, Diagnóstico) na ordem definida.
-67. Como usuário, quero uma **topbar** com "＋ Novo Lançamento" e o botão do Assistente iguais em toda tela.
-68. Como usuário, quero que a UI **nunca recalcule saldo no cliente**: após cada mutação ela revalida/re-busca as views do servidor (corolário do ADR-0002).
-69. Como usuário, quero **skeletons** no loading, não spinners de tela cheia.
-70. Como usuário, quero um **EmptyState** padronizado (ícone + 1 linha + 1 CTA) em toda tela sem dados.
-71. Como usuário de acessibilidade, quero que **cor nunca seja o único canal**: Tipo/Status/atrasado sempre pareiam cor + ícone/sinal/texto.
-72. Como usuário no celular, quero que a sidebar colapse em drawer e nada gere scroll horizontal até ~360px (desktop-first, ADR-0005).
+68. Como usuário, quero uma **sidebar persistente** com seis destinos (Dashboard, Agenda, Contas, Categorias, Importação, Diagnóstico) na ordem definida — sem itens soltos tipo "Lançamentos"/"Relatórios".
+69. Como usuário, quero uma **topbar** com "＋ Novo Lançamento" e o botão do Assistente iguais em toda tela.
+70. Como usuário, quero que a UI **nunca recalcule saldo no cliente**: após cada mutação ela revalida/re-busca as views do servidor (corolário do ADR-0002).
+71. Como usuário, quero **skeletons** no loading, não spinners de tela cheia.
+72. Como usuário, quero um **EmptyState** padronizado (ícone + 1 linha + 1 CTA) em toda tela sem dados.
+73. Como usuário de acessibilidade, quero que **cor nunca seja o único canal**: Tipo/Status/atrasado sempre pareiam cor + ícone/sinal/texto.
+74. Como usuário no celular, quero que a sidebar colapse em drawer e nada gere scroll horizontal até ~360px (desktop-first, ADR-0005).
 
 ## Implementation Decisions
 
@@ -160,9 +163,15 @@ testável isoladamente):
 - **Persistência (Prisma/SQLite)**: entidades `Conta` (com `papel`, `saldoInicial`), `Categoria` (com `tipo`),
   `Lançamento` (`tipo`, `status`, `contaId`, `categoriaId`, `data`, `valorCentavos`, `recorrenciaId?`, `transferenciaId?`),
   `Recorrencia`, `RendaLiquida` (valor + vigência), todas com `userId`. A Conta **não** guarda saldo (ADR-0002).
-- **Casca de UI + primitivos compartilhados** (contrato `docs/ui-ux.md`): sidebar persistente/drawer, topbar,
-  `<CurrencyInput>`, `<DateField>`, `<EmptyState>`, **modal de Lançamento compartilhado**, tabela semântica
-  (cores de Tipo/Status/atrasado), casca do Assistente (slide-over), diálogo de escopo de recorrência, AlertDialogs de exclusão.
+- **Casca de UI + primitivos compartilhados** (design system `docs/ui/mock/design.md`): sidebar persistente/drawer,
+  topbar, `<CurrencyInput>`, `<DateField>`, `<EmptyState>`, **modal de Lançamento compartilhado** (com toggle
+  **"Repetir"** inline para criar Recorrência — sem fluxo separado), tabela semântica (cores de Tipo/Status/atrasado
+  — Despesa e saldo negativo usam o token `error`, não uma cor inventada à parte), casca do Assistente (slide-over),
+  diálogo de escopo de recorrência, formulário "Nova Transferência" reaberto em edição ao clicar numa perna na Agenda
+  (edita/exclui sempre o par), AlertDialogs de exclusão e de descarte de formulário sujo (dirty-form guard).
+  Tokens de cor/tipografia/forma vêm do frontmatter de `docs/ui/mock/design.md`; o mock `code.html`/`screen.png`
+  é só evidência de linguagem visual — seu item de nav "Lançamentos"/"Relatórios" e o bubble flutuante de IA
+  **não** seguem, pois contradizem a IA (arquitetura de informação) resolvida acima.
 - **Auth** (Auth.js): login/registro e-mail+senha; signup semeia Categorias padrão.
 
 Contratos e regras cravadas: dinheiro sempre **centavos inteiros** (formatação só na UI); datas **date-only** em

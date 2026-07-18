@@ -1,16 +1,25 @@
-# Dashboard e Alertas: landing com projeção e sinais
+# Dashboard e Alertas: landing de previsibilidade
 
 ## What to build
 
-O **Dashboard** (landing pós-login), nesta ordem: (1) linha de **cards** — **Saldo Atual** e **Saldo Projetado (fim do mês)**, cor pela tabela semântica; (2) **gráfico de linha** da projeção diária (shadcn Charts/Recharts — lib única), **destacando o 1º dia que cruza abaixo de zero**; (3) **painel de Alertas** — **atrasados**, vencimentos **próximos** (PENDENTE nos próximos N dias) e **saldo projetado negativo** — todos **calculados na hora** (nunca persistidos, ADR-0002), **cada um clicável levando à Agenda filtrada** (deep-links da Slice 07). Dashboard vazio (sem Contas) usa `EmptyState` com CTA "Criar sua primeira Conta". O **N dias** é configurável no menu de usuário (default 7).
+O **Dashboard** como landing pós-login: **cards** de Saldo Atual e Saldo Projetado (fim do mês),
+coloridos pela tabela semântica; **gráfico de linha** (shadcn Charts sobre Recharts) da projeção
+diária, destacando o **1º dia que cruza abaixo de zero** (marcador + cor de perigo); **painel de
+Alertas** — atrasados (PENDENTE com data < hoje), vencimentos próximos (PENDENTE nos próximos N dias,
+default 7, configurável no menu de usuário) e projeção negativa — calculados **na hora** pelo Motor de
+Sinais Derivados, nunca persistidos. **Cada Alerta é clicável** e leva à Agenda já filtrada
+(`?status=atrasado`, `?proximos=1`, etc., Slice 07). Dashboard sem nenhuma Conta usa o `EmptyState`
+padronizado com CTA "Criar sua primeira Conta".
 
 ## Acceptance criteria
 
-- [ ] Cards de Saldo Atual e Projetado (fim do mês) coloridos pela tabela semântica
-- [ ] Gráfico de linha da projeção com marcador de perigo no 1º dia negativo (shadcn Charts, lib única)
-- [ ] Painel de Alertas (atrasados, próximos N dias, projeção negativa) calculado na hora; cada um linka à Agenda filtrada
-- [ ] N dias configurável no menu de usuário (default 7); Dashboard vazio usa `EmptyState` "Criar sua primeira Conta"
-- [ ] Evidência: testes do motor de Alertas (bordas: próximos = N dias, projeção negativa detecta qualquer dia < 0) + screenshot
+- [ ] Cards de Saldo Atual e Saldo Projetado (fim do mês) vindos do Motor de Saldo (Slice 06), cor pela tabela semântica
+- [ ] Gráfico de linha da série de projeção diária, com marcador no 1º dia negativo (se existir)
+- [ ] Painel de Alertas: atrasados, próximos N dias, projeção negativa — todos derivados em runtime, nunca lidos de coluna persistida
+- [ ] Cada Alerta é um link que abre a Agenda com o filtro de URL correspondente
+- [ ] N dias do alerta "próximos" é configurável (default 7) e o Dashboard reflete a mudança
+- [ ] Zero Contas → `EmptyState` "Criar sua primeira Conta", nunca um dashboard quebrado
+- [ ] Evidência: teste do Motor de Sinais Derivados (atrasado/próximos/projeção negativa) + screenshot do Dashboard
 
 ## Blocked by
 

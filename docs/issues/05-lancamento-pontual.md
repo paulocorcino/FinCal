@@ -1,17 +1,28 @@
-# Lançamento pontual: modal compartilhado e camada de serviço
+# Lançamento pontual: modal compartilhado e primitivos de borda
 
 ## What to build
 
-Registrar um **Lançamento** (Tipo, valor, Conta, Categoria, data, Status) via o **modal compartilhado** (shadcn `Dialog`) — um único componente de formulário aberto de todos os pontos de entrada (topbar "＋ Novo Lançamento"; depois Agenda). Introduz os primitivos transversais: **`<CurrencyInput>`** (máscara `R$ 1.234,56` → **centavos inteiros** na borda form→serviço) e **`<DateField>`** (`dd/MM/yyyy`, date-only, `America/Sao_Paulo`). **Default de Status por data** (passado → `EFETIVADO`; hoje/futuro → `PENDENTE`), editável. **Efetivar** um `PENDENTE` permite ajustar o valor previsto para o real (transição total, sem parcial). Cada escrita → **toast**. Estabelece a **camada de serviço** (`criarLancamento`/`editarLancamento`/`excluirLancamento`/`efetivarLancamento`), caminho único de escrita, sempre no `userId` da sessão. Modal com **zero Contas** mostra "Crie uma Conta primeiro" em vez do formulário.
+O **Lançamento** (Tipo, valor, Conta, Categoria, data, Status) via um **modal único compartilhado**
+(shadcn `Dialog`) reaberto de todo ponto de entrada (botão global "＋ Novo Lançamento" nesta fatia; a
+Agenda ganha seus próprios pontos de entrada na Slice 07). **Status default por data** (editável):
+data no passado → `EFETIVADO`; hoje/futuro → `PENDENTE`. Zero Contas cadastradas → o modal não mostra
+formulário, mostra "Crie uma Conta primeiro" com atalho para Contas. O modal já reserva (mas deixa
+desligado) o toggle **"Repetir"** que a Slice 09 liga para criar Recorrência — nesta fatia ele não
+aparece ainda, para não acoplar as duas fatias. Fecha com **dirty-form guard**: alterações não salvas
+pedem confirmação (`AlertDialog`) antes de descartar.
 
 ## Acceptance criteria
 
-- [ ] Modal compartilhado cria/edita Lançamento; mesmo componente reusado (nunca duplicado por tela)
-- [ ] `<CurrencyInput>` converte para **centavos inteiros** (nunca float); `<DateField>` date-only ancorado em `America/Sao_Paulo`
-- [ ] Default de Status por data, editável; **efetivar** PENDENTE→EFETIVADO ajustando o valor (sem parcial)
-- [ ] Excluir passa por `AlertDialog`; toda escrita gera **toast** (sucesso/erro)
-- [ ] Camada de serviço filtra por `userId`; modal com zero Contas mostra atalho "Crie uma Conta primeiro"
-- [ ] Evidência: testes da camada de serviço (isolamento por `userId`, centavos, status por data) + screenshot do modal
+- [ ] Criar Lançamento (Tipo, valor, Conta, Categoria, data, Status) pelo modal compartilhado
+- [ ] Status default deriva da data (passado → `EFETIVADO`, hoje/futuro → `PENDENTE`), editável
+- [ ] `<CurrencyInput>` compartilhado: máscara `R$ 1.234,56` na UI, converte para inteiro em centavos na borda — nunca `float`
+- [ ] `<DateField>` compartilhado: `dd/MM/yyyy`, date-only, ancorado em `America/Sao_Paulo`, sem `new Date()` ingênuo
+- [ ] Editar e excluir Lançamento (exclusão com `AlertDialog`)
+- [ ] `categoriaId` obrigatório em Lançamento comum (perna de Transferência fica fora desta fatia, ver Slice 10)
+- [ ] Zero Contas → modal mostra "Crie uma Conta primeiro" em vez do formulário
+- [ ] Fechar modal com alterações não salvas pede confirmação (dirty-form guard)
+- [ ] Toda escrita gera **toast** de sucesso/erro
+- [ ] Evidência: teste dos utilitários de borda (dinheiro↔centavos, data date-only) + screenshot do modal
 
 ## Blocked by
 

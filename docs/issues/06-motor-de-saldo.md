@@ -1,17 +1,24 @@
-# Motor de saldo: atual e projetado (série diária)
+# Motor de Saldo: Saldo Atual e série de Saldo Projetado
 
 ## What to build
 
-O coração determinístico e testável (ADR-0002). Funções **puras** que, a partir dos Lançamentos + `saldoInicial`, calculam: **Saldo Atual** (= saldoInicial + Σ EFETIVADOS até hoje) e **Saldo Projetado** como **série diária** ao longo de um horizonte (`saldoProjetado(D) = saldoInicial + Σ Lançamentos com data ≤ D`, EFETIVADOS ou PENDENTES). Consolidado (todas as Contas) por padrão, filtrável por Conta. Horizonte padrão = fim do mês corrente, mas aceita qualquer data-alvo. Deriva o **1º dia que cruza abaixo de zero**. Expor via API e exibir o número atual/projetado numa página simples. A UI **nunca recalcula saldo no cliente** — sempre re-busca do servidor (corolário do ADR-0002).
+O **Motor de Saldo** — módulo profundo, coração do produto (ADR-0002): funções **puras**, sem I/O e
+sem LLM, sobre `Lançamentos[] + Saldo Inicial`. `saldoAtual(contas, lançamentos, hoje)` =
+`saldoInicial + Σ EFETIVADOS até hoje`. `serieSaldoProjetado(contas, lançamentos, horizonte) →
+{ data, valor }[]` = série diária somando EFETIVADOS + PENDENTES até cada dia, horizonte padrão fim do
+mês corrente. Um derivador do **1º dia em que o saldo projetado cruza abaixo de zero**. Consolidado
+(todas as Contas) por padrão, parametrizável por Conta única. Este motor é a única fonte numérica de
+saldo em todo o app — nenhuma tela recalcula por conta própria.
 
 ## Acceptance criteria
 
-- [ ] Saldo Atual e série diária de Saldo Projetado calculados como funções puras (sem I/O, sem LLM)
-- [ ] Consolidado por padrão; filtro por Conta; horizonte configurável (padrão fim do mês)
-- [ ] Deriva o **1º dia negativo** da série
-- [ ] API retorna a série; página exibe atual + projetado sem recálculo no cliente
-- [ ] Testes de borda: mês de 31 dias, saldo cruzando zero (identifica o 1º dia negativo), Lançamento no limite do horizonte, sem Lançamentos, consolidado vs. por Conta, PENDENTE só no projetado
-- [ ] Evidência: saída dos testes cobrindo os casos de borda
+- [ ] `saldoAtual`: soma só EFETIVADOS até hoje; PENDENTE nunca entra no Saldo Atual
+- [ ] `serieSaldoProjetado`: soma EFETIVADOS + PENDENTES por dia até o horizonte; retorna série diária, não um número único
+- [ ] Identifica corretamente o 1º dia com saldo projetado negativo (ou nenhum, se a série nunca cruza)
+- [ ] Casos de borda: mês de 31 dias; Lançamento exatamente no limite do horizonte; nenhum Lançamento; consolidado vs. filtrado por uma Conta
+- [ ] Horizonte configurável (aceita qualquer data-alvo, default fim do mês)
+- [ ] Sem I/O — funções puras testáveis isoladamente, sem tocar Prisma/rede
+- [ ] Evidência: suíte Vitest cobrindo os casos de borda acima
 
 ## Blocked by
 
